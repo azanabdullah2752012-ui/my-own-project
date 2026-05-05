@@ -7,64 +7,63 @@ import System from './pages/System';
 import Progress from './pages/Progress';
 import Vault from './pages/Vault';
 import Projects from './pages/Projects';
-import Auth from './pages/Auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, HelpCircle, Settings, User } from 'lucide-react';
+import { Search, Bell, HelpCircle, Settings } from 'lucide-react';
 
 const App = () => {
-  const { state, updateState, user } = useApp();
+  const { data, updateModule } = useApp();
   const [currentView, setCurrentView] = useState('dashboard');
 
-  if (!user) return <Auth />;
-
   const renderView = () => {
-    const props = { data: state[currentView], update: (val) => updateState(currentView, val) };
+    const props = { data: data[currentView], update: (val) => updateModule(currentView, val) };
     switch (currentView) {
-      case 'dashboard': return <Dashboard data={state} update={(val) => updateState(null, val)} />;
-      case 'goals': return <Goals {...props} />;
-      case 'system': return <System {...props} />;
-      case 'progress': return <Progress {...props} />;
-      case 'vault': return <Vault {...props} />;
-      case 'projects': return <Projects {...props} />;
-      default: return <Dashboard data={state} />;
+      case 'dashboard': return <Dashboard data={data} update={(val) => updateModule(null, val)} />;
+      case 'goals':     return <Goals     {...props} />;
+      case 'system':    return <System    {...props} />;
+      case 'progress':  return <Progress  {...props} />;
+      case 'vault':     return <Vault     {...props} />;
+      case 'projects':  return <Projects  {...props} />;
+      default:          return <Dashboard data={data} update={(val) => updateModule(null, val)} />;
     }
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-shell">
       <Navigation currentView={currentView} setView={setCurrentView} />
-      
-      <div className="content-wrapper">
-        <header className="top-bar">
-          <div className="search-container">
-            <Search className="search-icon" size={18} />
+
+      <div className="content-area">
+        {/* TOP BAR */}
+        <header className="topbar">
+          <div className="topbar-search">
+            <Search size={15} />
             <input type="text" placeholder="Search for missions, lessons, etc" />
           </div>
-          
-          <div className="flex items-center gap-4">
-            <button className="strip-item"><Bell size={20} /></button>
-            <button className="strip-item"><HelpCircle size={20} /></button>
-            <button className="strip-item"><Settings size={20} /></button>
-            <div className="flex items-center gap-3 ml-4 bg-panel p-1.5 pr-4 rounded-full border border-white/5 cursor-pointer hover:bg-panel-hover transition-all">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 border border-white/10" />
-              <div className="text-[11px] font-bold">Isa Abdullah</div>
+          <div className="topbar-actions">
+            <button className="topbar-icon-btn"><Bell size={17} /></button>
+            <button className="topbar-icon-btn"><HelpCircle size={17} /></button>
+            <button className="topbar-icon-btn"><Settings size={17} /></button>
+            <div className="topbar-avatar">
+              <div className="topbar-avatar-img">A</div>
+              <span className="topbar-avatar-name">Azan</span>
             </div>
           </div>
         </header>
 
-        <main className="main-scroll">
+        {/* PAGE CONTENT */}
+        <div className="page-scroll">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
-              initial={{ opacity: 0, y: 10 }}
+              className="fade-in"
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
             >
               {renderView()}
             </motion.div>
           </AnimatePresence>
-        </main>
+        </div>
       </div>
     </div>
   );

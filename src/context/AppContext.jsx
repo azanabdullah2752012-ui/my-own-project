@@ -5,9 +5,7 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [data, setData] = useState(storage.get());
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    sessionStorage.getItem('empire_os_auth') === 'true'
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Daily reset check
   useEffect(() => {
@@ -51,31 +49,16 @@ export const AppProvider = ({ children }) => {
   }, [data]);
 
   const updateModule = (moduleName, moduleData) => {
-    const newData = { ...data, [moduleName]: moduleData };
+    // If moduleName is null, we are updating the entire state
+    const newData = moduleName ? { ...data, [moduleName]: moduleData } : moduleData;
     setData(newData);
     storage.save(newData);
-  };
-
-  const login = (password) => {
-    if (password === data.auth.password) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('empire_os_auth', 'true');
-      return true;
-    }
-    return false;
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('empire_os_auth');
   };
 
   const value = {
     data,
     updateModule,
-    isAuthenticated,
-    login,
-    logout
+    isAuthenticated: true
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

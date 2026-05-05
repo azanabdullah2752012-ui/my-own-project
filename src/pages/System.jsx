@@ -1,141 +1,155 @@
 import React from 'react';
-import { Sunrise, BookOpen, Sunset, Clock, Play, CheckCircle } from 'lucide-react';
+import { Sunrise, BookOpen, Sunset, CheckCircle, Circle, Play, Plus, Trash2 } from 'lucide-react';
 
 const System = ({ data, update }) => {
-  const handleUpdate = (block, field, value) => {
-    update({
-      ...data,
-      [block]: { ...data[block], [field]: value }
-    });
+  if (!data) return null;
+
+  const patch = (block, field, value) =>
+    update({ ...data, [block]: { ...data[block], [field]: value } });
+
+  const tomorrow = data.night?.tomorrowPlan ?? [];
+  const addTomorrow = () => {
+    if (tomorrow.length >= 5) return;
+    patch('night', 'tomorrowPlan', [...tomorrow, '']);
   };
+  const updateTomorrow = (i, val) => {
+    const plan = [...tomorrow];
+    plan[i] = val;
+    patch('night', 'tomorrowPlan', plan);
+  };
+  const deleteTomorrow = (i) => patch('night', 'tomorrowPlan', tomorrow.filter((_, idx) => idx !== i));
 
   return (
-    <div className="space-y-8 fade-in">
-      <header className="mb-12">
-        <h2 className="text-3xl font-black tracking-tight mb-2">Protocol Configuration</h2>
-        <p className="text-secondary text-sm font-medium">Daily operational standards and cognitive engine settings.</p>
-      </header>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Daily Protocol</div>
+          <div className="page-subtitle">Configure your AM routine, study engine, and evening wind-down.</div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-2 gap-8">
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
         {/* AM PROTOCOL */}
-        <section className="card">
-          <div className="card-header border-b border-white/5 pb-4">
-            <h3 className="card-title flex items-center gap-2">
-              <Sunrise size={18} className="text-orange-500" />
-              AM Protocol
-            </h3>
+        <div className="card">
+          <div className="section-header">
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
+              <Sunrise size={16} color="#FF9500" /> AM Protocol
+            </span>
           </div>
-          <div className="pt-8 space-y-8">
-            <div className="grid grid-cols-2 gap-8">
-              <div className="p-6 rounded-3xl bg-panel-hover">
-                <label className="text-[10px] text-dim font-black uppercase tracking-widest block mb-4">Wake_Target</label>
-                <input 
-                  type="time" 
-                  className="bg-transparent border-none p-0 text-4xl font-black text-white focus:ring-0" 
-                  value={data.morning.wakeTime}
-                  onChange={(e) => handleUpdate('morning', 'wakeTime', e.target.value)}
-                />
-              </div>
-              <div className="p-6 rounded-3xl bg-panel-hover">
-                <label className="text-[10px] text-dim font-black uppercase tracking-widest block mb-4">Prime_Directive</label>
-                <input 
-                  className="bg-transparent border-none p-0 text-sm font-bold text-white focus:ring-0 w-full" 
-                  value={data.morning.firstAction}
-                  onChange={(e) => handleUpdate('morning', 'firstAction', e.target.value)}
-                />
-              </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
+            <div style={{ background:'var(--bg-panel-hover)', borderRadius:12, padding:'14px 16px' }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Wake Time</div>
+              <input type="time" value={data.morning?.wakeTime || '06:00'} onChange={e => patch('morning','wakeTime',e.target.value)}
+                style={{ background:'none', border:'none', fontSize:26, fontWeight:900, color:'#fff', width:'100%' }} />
             </div>
-            <div className="flex items-center justify-between p-6 bg-panel-hover rounded-3xl border border-white/5">
-              <div className="flex items-center gap-4">
-                <div className={`w-3 h-3 rounded-full ${data.morning.phoneUsage ? 'bg-green-500 shadow-[0_0_10px_#34C759]' : 'bg-dim'}`} />
-                <span className="text-sm font-bold">Electronic Blockade Active</span>
-              </div>
-              <button 
-                onClick={() => handleUpdate('morning', 'phoneUsage', !data.morning.phoneUsage)}
-                className={`btn-primary px-6 py-2 text-[10px] ${data.morning.phoneUsage ? '' : 'bg-dim shadow-none'}`}
-              >
-                {data.morning.phoneUsage ? 'DEACTIVATE' : 'ACTIVATE'}
-              </button>
+            <div style={{ background:'var(--bg-panel-hover)', borderRadius:12, padding:'14px 16px' }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>First Action</div>
+              <input value={data.morning?.firstAction || ''} onChange={e => patch('morning','firstAction',e.target.value)}
+                placeholder="e.g. Drink water, stretch..." style={{ background:'none', border:'none', fontSize:13, fontWeight:600, color:'#fff', width:'100%' }} />
             </div>
           </div>
-        </section>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 16px', background:'var(--bg-panel-hover)', borderRadius:12, border:'1px solid var(--border)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:10, height:10, borderRadius:'50%', background: data.morning?.phoneUsage ? '#34C759' : 'var(--text-dim)', boxShadow: data.morning?.phoneUsage ? '0 0 10px #34C759' : 'none', transition:'all 0.3s' }} />
+              <span style={{ fontSize:13, fontWeight:600 }}>Electronic Blockade</span>
+            </div>
+            <button className="btn-primary" style={{ padding:'7px 16px', fontSize:12, background: data.morning?.phoneUsage ? '#34C759' : 'var(--accent)' }}
+              onClick={() => patch('morning','phoneUsage',!data.morning?.phoneUsage)}>
+              {data.morning?.phoneUsage ? 'Active ✓' : 'Activate'}
+            </button>
+          </div>
+        </div>
 
-        {/* COGNITIVE SYSTEM */}
-        <section className="card">
-          <div className="card-header border-b border-white/5 pb-4">
-            <h3 className="card-title flex items-center gap-2">
-              <BookOpen size={18} className="text-blue-500" />
-              Cognitive Engine
-            </h3>
+        {/* COGNITIVE ENGINE */}
+        <div className="card">
+          <div className="section-header">
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
+              <BookOpen size={16} color="#4D7CFE" /> Cognitive Engine
+            </span>
           </div>
-          <div className="pt-8 grid grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <label className="text-[10px] text-dim font-black uppercase tracking-widest block">Unit_Duration</label>
-              <div className="flex flex-col gap-3">
-                {[25, 45, 60].map(m => (
-                  <button 
-                    key={m}
-                    onClick={() => handleUpdate('study', 'sessionLength', m)}
-                    className={`flex items-center justify-between p-4 rounded-2xl transition-all border ${data.study.sessionLength === m ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-white/5 bg-panel-hover text-dim hover:text-white'}`}
-                  >
-                    <span className="text-xl font-black">{m}</span>
-                    <span className="text-[10px] font-bold">MINS</span>
-                  </button>
-                ))}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <div>
+              <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>Session Length</div>
+              {[25, 45, 60].map(m => (
+                <button key={m} onClick={() => patch('study','sessionLength',m)}
+                  style={{ display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%', padding:'11px 14px', borderRadius:10, marginBottom:8, border: data.study?.sessionLength === m ? '1px solid #4D7CFE' : '1px solid var(--border)', background: data.study?.sessionLength === m ? 'rgba(77,124,254,0.1)' : 'var(--bg-panel-hover)', color: data.study?.sessionLength === m ? '#4D7CFE' : 'var(--text-secondary)', fontWeight:700, fontSize:13, cursor:'pointer', transition:'all 0.15s' }}>
+                  <span style={{ fontSize:22, fontWeight:900 }}>{m}</span>
+                  <span style={{ fontSize:11 }}>mins</span>
+                </button>
+              ))}
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <div style={{ background:'var(--bg-sidebar)', border:'1px solid var(--border)', borderRadius:14, padding:'16px', textAlign:'center', flex:1 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Daily Target</div>
+                <input type="number" min={1} max={12} value={data.study?.sessionsPerDay ?? 4}
+                  onChange={e => patch('study','sessionsPerDay',Math.max(1,parseInt(e.target.value)||1))}
+                  style={{ background:'none', border:'none', fontSize:48, fontWeight:900, color:'#fff', textAlign:'center', width:'100%' }} />
+                <div style={{ fontSize:11, color:'#4D7CFE', fontWeight:600, marginTop:4 }}>Sessions / Day</div>
+              </div>
+              <div style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Break Duration</div>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <button onClick={() => patch('study','breakDuration',Math.max(1,(data.study?.breakDuration??5)-1))}
+                    style={{ width:26, height:26, borderRadius:6, background:'var(--bg-panel)', border:'1px solid var(--border)', color:'#fff', cursor:'pointer', fontWeight:700 }}>−</button>
+                  <span style={{ fontSize:18, fontWeight:800 }}>{data.study?.breakDuration ?? 5}<span style={{ fontSize:11, color:'var(--text-secondary)', marginLeft:4 }}>min</span></span>
+                  <button onClick={() => patch('study','breakDuration',(data.study?.breakDuration??5)+1)}
+                    style={{ width:26, height:26, borderRadius:6, background:'var(--bg-panel)', border:'1px solid var(--border)', color:'#fff', cursor:'pointer', fontWeight:700 }}>+</button>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col justify-between">
-              <div className="p-8 bg-sidebar border border-white/5 rounded-3xl text-center">
-                <label className="text-[10px] text-dim font-black uppercase tracking-widest block mb-4">Daily_Target</label>
-                <input 
-                  type="number" 
-                  className="bg-transparent border-none p-0 text-6xl font-black text-center w-full focus:ring-0" 
-                  value={data.study.sessionsPerDay}
-                  onChange={(e) => handleUpdate('study', 'sessionsPerDay', parseInt(e.target.value) || 0)}
-                />
-                <div className="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-4">Operational Units</div>
-              </div>
-              <button className="btn-primary w-full py-4 mt-6 flex items-center justify-center gap-2">
-                <Play size={16} /> Start Session
-              </button>
-            </div>
           </div>
-        </section>
+        </div>
       </div>
 
       {/* PM PROTOCOL */}
-      <section className="card">
-        <div className="card-header border-b border-white/5 pb-4">
-          <h3 className="card-title flex items-center gap-2">
-            <Sunset size={18} className="text-orange-500" />
-            PM Protocol / Success Verification
-          </h3>
+      <div className="card">
+        <div className="section-header">
+          <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
+            <Sunset size={16} color="#FF9500" /> PM Protocol
+          </span>
         </div>
-        <div className="pt-8 grid grid-cols-3 gap-8">
-          <div className="col-span-2 space-y-4">
-            <label className="text-[10px] text-dim font-black uppercase tracking-widest block">Daily_Debrief</label>
-            <textarea 
-              className="w-full bg-panel-hover border-none p-6 rounded-3xl text-sm font-medium text-white min-h-[160px] focus:ring-1 focus:ring-blue-500/30 transition-all"
-              placeholder="Log your operational failures and successes..."
-              value={data.night.reflection}
-              onChange={(e) => handleUpdate('night', 'reflection', e.target.value)}
-            />
+        <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:20 }}>
+          {/* DAILY REFLECTION */}
+          <div>
+            <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Daily Debrief</div>
+            <textarea value={data.night?.reflection || ''} onChange={e => patch('night','reflection',e.target.value)}
+              placeholder="What worked? What didn't? Key lessons..."
+              style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:12, padding:'14px', fontSize:13, color:'#fff', minHeight:160, resize:'none', lineHeight:1.6 }} />
           </div>
-          <div className="flex flex-col justify-between">
-            <div className="space-y-4">
-              <label className="text-[10px] text-dim font-black uppercase tracking-widest block">Cycle_Success</label>
-              <button 
-                onClick={() => handleUpdate('night', 'streakConfirmed', !data.night.streakConfirmed)}
-                className={`w-full py-8 rounded-3xl font-black text-xs tracking-[0.4em] transition-all flex flex-col items-center gap-4 border ${data.night.streakConfirmed ? 'bg-green-500/10 border-green-500 text-green-500 shadow-[0_8px_30px_rgba(52,199,89,0.1)]' : 'bg-panel-hover border-white/5 text-dim hover:text-white'}`}
-              >
-                {data.night.streakConfirmed ? <CheckCircle size={32} /> : <div className="w-8 h-8 rounded-full border-2 border-dim" />}
-                {data.night.streakConfirmed ? 'VERIFIED' : 'CONFIRM SUCCESS'}
-              </button>
+
+          {/* TOMORROW'S PLAN */}
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em' }}>Tomorrow's Plan</div>
+              {tomorrow.length < 5 && (
+                <button onClick={addTomorrow} style={{ background:'none', border:'none', color:'#4D7CFE', cursor:'pointer' }}><Plus size={14} /></button>
+              )}
             </div>
-            <button className="btn-primary w-full py-4 uppercase tracking-widest text-[10px]">Initialize Sleep Sequence</button>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {tomorrow.map((p, i) => (
+                <div key={i} style={{ display:'flex', gap:8, alignItems:'center' }}>
+                  <div style={{ fontSize:11, fontWeight:900, color:'#4D7CFE', width:16, textAlign:'center' }}>0{i+1}</div>
+                  <input value={p} onChange={e => updateTomorrow(i, e.target.value)}
+                    placeholder={`Priority ${i+1}...`}
+                    style={{ flex:1, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#fff' }} />
+                  <button onClick={() => deleteTomorrow(i)} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={12} /></button>
+                </div>
+              ))}
+              {tomorrow.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)' }}>Click + to add priorities</div>}
+            </div>
+          </div>
+
+          {/* STREAK CONFIRM */}
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:0 }}>Mark Complete</div>
+            <button onClick={() => patch('night','streakConfirmed',!data.night?.streakConfirmed)}
+              style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:12, borderRadius:16, border: data.night?.streakConfirmed ? '1px solid #34C759' : '1px solid var(--border)', background: data.night?.streakConfirmed ? 'rgba(52,199,89,0.08)' : 'var(--bg-panel-hover)', color: data.night?.streakConfirmed ? '#34C759' : 'var(--text-secondary)', fontWeight:700, fontSize:12, cursor:'pointer', padding:'20px', transition:'all 0.2s' }}>
+              {data.night?.streakConfirmed ? <CheckCircle size={36} color="#34C759" /> : <Circle size={36} color="var(--text-dim)" />}
+              <span>{data.night?.streakConfirmed ? 'Day Verified ✓' : 'Confirm Day Success'}</span>
+            </button>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
