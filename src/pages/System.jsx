@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sunrise, BookOpen, Sunset, Shield, Radio, Activity, CheckCircle } from 'lucide-react';
+import { Sunrise, BookOpen, Sunset, Clock, Play } from 'lucide-react';
 
 const System = ({ data, update }) => {
   const handleUpdate = (block, field, value) => {
@@ -10,171 +10,128 @@ const System = ({ data, update }) => {
   };
 
   return (
-    <div className="space-y-12">
-      <header>
-        <h2 className="text-3xl font-bold">Protocol Engine</h2>
-        <p className="text-secondary text-sm">Defining the daily operational parameters for peak performance.</p>
-      </header>
-
-      <div className="grid-cols">
-        {/* MORNING PROTOCOL */}
-        <section className="glass-panel p-8 space-y-8">
-          <div className="flex items-center gap-3">
-            <Sunrise className="text-[#00FF99]" size={20} />
-            <h3 className="text-sm font-bold uppercase tracking-widest">AM_PROTOCOL / Initialization</h3>
+    <div className="bento-grid fade-in">
+      {/* MORNING PROTOCOL */}
+      <section className="bento-card col-span-6 row-span-2 space-y-8">
+        <div className="flex items-center gap-3">
+          <Sunrise className="text-[#00FF99]" size={20} />
+          <h3 className="card-title mb-0">AM_Protocol</h3>
+        </div>
+        
+        <div className="space-y-12">
+          <div className="flex items-end justify-between border-b border-white/5 pb-8">
+            <div>
+              <label className="text-[10px] text-[#444] font-black uppercase tracking-widest block mb-2">Wake_Target</label>
+              <input 
+                type="time" 
+                className="bg-transparent border-none p-0 text-5xl font-black text-white focus:ring-0" 
+                value={data.morning.wakeTime}
+                onChange={(e) => handleUpdate('morning', 'wakeTime', e.target.value)}
+              />
+            </div>
+            <div className="text-right">
+              <label className="text-[10px] text-[#444] font-black uppercase tracking-widest block mb-2">First_Action</label>
+              <input 
+                className="bg-transparent border-none p-0 text-sm font-bold text-white text-right focus:ring-0" 
+                value={data.morning.firstAction}
+                onChange={(e) => handleUpdate('morning', 'firstAction', e.target.value)}
+              />
+            </div>
           </div>
-          
+
+          <div className="flex items-center justify-between p-6 bg-white/5 rounded-3xl">
+            <div className="flex items-center gap-4">
+              <div className={`w-3 h-3 rounded-full ${data.morning.phoneUsage ? 'bg-[#00FF99]' : 'bg-[#222]'}`} />
+              <span className="text-sm font-bold">Signal Blockade</span>
+            </div>
+            <button 
+              onClick={() => handleUpdate('morning', 'phoneUsage', !data.morning.phoneUsage)}
+              className="btn-pill px-6 py-2 text-[10px]"
+            >
+              {data.morning.phoneUsage ? 'DEACTIVATE' : 'ACTIVATE'}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* COGNITIVE SYSTEM */}
+      <section className="bento-card col-span-6 row-span-2 space-y-8">
+        <div className="flex items-center gap-3">
+          <BookOpen className="text-[#00FF99]" size={20} />
+          <h3 className="card-title mb-0">Cognitive Load System</h3>
+        </div>
+
+        <div className="grid grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div className="flex justify-between items-end border-b border-white/5 pb-4">
-              <div>
-                <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-2">Wake Time</label>
-                <input 
-                  type="time" 
-                  className="bg-transparent border-none p-0 text-3xl font-black text-[#00FF99]" 
-                  value={data.morning.wakeTime}
-                  onChange={(e) => handleUpdate('morning', 'wakeTime', e.target.value)}
-                />
-              </div>
-              <div className="text-right">
-                <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-2">First Action</label>
-                <input 
-                  placeholder="Immediate directive..." 
-                  className="bg-transparent border-none p-0 text-sm font-bold text-white text-right focus:ring-0" 
-                  value={data.morning.firstAction}
-                  onChange={(e) => handleUpdate('morning', 'firstAction', e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-              <div className="flex items-center gap-3">
-                <Radio size={16} className="text-[#00FF99]" />
-                <span className="text-sm font-bold">Signal Blockade (No Phone)</span>
-              </div>
-              <button 
-                onClick={() => handleUpdate('morning', 'phoneUsage', !data.morning.phoneUsage)}
-                className={`w-12 h-6 rounded-full transition-all relative ${data.morning.phoneUsage ? 'bg-[#00FF99]' : 'bg-white/10'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${data.morning.phoneUsage ? 'right-1' : 'left-1'}`} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-[10px] text-secondary uppercase font-bold tracking-widest">Core Checklist</h4>
-              {['Drink 500ml Water', 'Sunlight exposure', 'Cold exposure', 'Movement'].map((step, i) => (
-                <div key={i} className="flex items-center gap-3 text-xs font-bold text-white/40">
-                  <div className="w-2 h-2 rounded-full border border-white/20" />
-                  <span>{step}</span>
-                </div>
+            <label className="text-[10px] text-[#444] font-black uppercase tracking-widest block">Unit_Length</label>
+            <div className="flex flex-col gap-2">
+              {[25, 45, 60].map(m => (
+                <button 
+                  key={m}
+                  onClick={() => handleUpdate('study', 'sessionLength', m)}
+                  className={`text-left p-4 rounded-2xl border transition-all ${data.study.sessionLength === m ? 'border-[#00FF99] bg-[#00FF99]/5 text-white' : 'border-white/5 text-[#444] hover:border-white/10'}`}
+                >
+                  <span className="text-2xl font-black">{m}</span>
+                  <span className="text-[10px] ml-2">MINS</span>
+                </button>
               ))}
             </div>
           </div>
-        </section>
-
-        {/* COGNITIVE SYSTEM */}
-        <section className="glass-panel p-8 space-y-8">
-          <div className="flex items-center gap-3">
-            <BookOpen className="text-[#00FF99]" size={20} />
-            <h3 className="text-sm font-bold uppercase tracking-widest">Cognitive Load System</h3>
-          </div>
-
-          <div className="space-y-10">
-            <div>
-              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-4">Focus Duration</label>
-              <div className="flex justify-between">
-                {[25, 45, 60].map(m => (
-                  <button 
-                    key={m}
-                    onClick={() => handleUpdate('study', 'sessionLength', m)}
-                    className={`px-6 py-2 rounded-xl border text-sm font-bold transition-all ${data.study.sessionLength === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/5' : 'border-white/5 text-secondary hover:border-white/20'}`}
-                  >
-                    {m}m
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-4">Break Parameters</label>
-              <div className="flex justify-between">
-                {[5, 10, 15].map(m => (
-                  <button 
-                    key={m}
-                    onClick={() => handleUpdate('study', 'breakDuration', m)}
-                    className={`px-6 py-2 rounded-xl border text-sm font-bold transition-all ${data.study.breakDuration === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/5' : 'border-white/5 text-secondary hover:border-white/20'}`}
-                  >
-                    {m}m
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center p-6 bg-white/5 rounded-3xl">
-              <div>
-                <div className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">Target Intensity</div>
-                <div className="text-lg font-bold">{data.study.sessionsPerDay} Units / Day</div>
-              </div>
+          <div className="space-y-6">
+            <label className="text-[10px] text-[#444] font-black uppercase tracking-widest block">Daily_Intensity</label>
+            <div className="p-8 bg-black border border-white/5 rounded-3xl text-center">
               <input 
-                type="range" 
-                min="1" 
-                max="12" 
-                className="w-32 accent-[#00FF99]"
+                type="number" 
+                className="bg-transparent border-none p-0 text-6xl font-black text-center w-full focus:ring-0" 
                 value={data.study.sessionsPerDay}
                 onChange={(e) => handleUpdate('study', 'sessionsPerDay', parseInt(e.target.value) || 0)}
               />
+              <div className="text-[8px] text-[#222] font-black uppercase tracking-widest mt-2">UNITS_TARGET</div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* NIGHT PROTOCOL */}
-        <section className="glass-panel p-8 space-y-8">
-          <div className="flex items-center gap-3">
-            <Sunset className="text-[#00FF99]" size={20} />
-            <h3 className="text-sm font-bold uppercase tracking-widest">PM_PROTOCOL / Termination</h3>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-3">Daily Reflection (Debrief)</label>
-              <textarea 
-                className="w-full bg-white/5 border border-white/5 p-4 rounded-2xl min-h-[100px] text-sm focus:ring-1 focus:ring-[#00FF99] transition-all"
-                placeholder="What was learned in this cycle?"
-                value={data.night.reflection}
-                onChange={(e) => handleUpdate('night', 'reflection', e.target.value)}
-              />
+      {/* PM PROTOCOL */}
+      <section className="bento-card col-span-12">
+        <div className="flex items-center gap-3 mb-8">
+          <Sunset className="text-[#00FF99]" size={20} />
+          <h3 className="card-title mb-0">PM_Protocol / Termination</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-12">
+          <textarea 
+            className="w-full bg-white/5 border-none p-6 rounded-3xl text-sm font-bold text-[#444] focus:text-white min-h-[150px] focus:ring-0 transition-all"
+            placeholder="DAILY_DEBRIEF..."
+            value={data.night.reflection}
+            onChange={(e) => handleUpdate('night', 'reflection', e.target.value)}
+          />
+          <div className="flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="text-[10px] text-[#222] font-black uppercase tracking-widest">Future_Vector</div>
+              {data.night.tomorrowPlan.slice(0, 3).map((p, i) => (
+                <div key={i} className="flex gap-4 items-center">
+                  <div className="text-[10px] font-black text-[#00FF99]">0{i+1}</div>
+                  <input 
+                    className="bg-transparent border-none p-0 text-sm font-bold text-white focus:ring-0 w-full"
+                    value={p}
+                    onChange={(e) => {
+                      const plan = [...data.night.tomorrowPlan];
+                      plan[i] = e.target.value;
+                      handleUpdate('night', 'tomorrowPlan', plan);
+                    }}
+                  />
+                </div>
+              ))}
             </div>
-
-            <div>
-              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-3">Next Cycle Vector (3 Max)</label>
-              <div className="space-y-2">
-                {[0, 1, 2].map(i => (
-                  <div key={i} className="flex gap-3 items-center">
-                    <span className="text-[10px] font-bold text-[#00FF99] opacity-50">0{i+1}</span>
-                    <input 
-                      placeholder={`Tomorrow Plan ${i+1}`}
-                      className="w-full bg-transparent border-none p-0 text-sm font-bold focus:ring-0"
-                      value={data.night.tomorrowPlan[i] || ''}
-                      onChange={(e) => {
-                        const plan = [...data.night.tomorrowPlan];
-                        plan[i] = e.target.value;
-                        handleUpdate('night', 'tomorrowPlan', plan);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <button 
               onClick={() => handleUpdate('night', 'streakConfirmed', !data.night.streakConfirmed)}
-              className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest transition-all flex items-center justify-center gap-3 ${data.night.streakConfirmed ? 'bg-[#00FF99] text-black shadow-[0_0_20px_rgba(0,255,153,0.3)]' : 'bg-white/5 text-secondary hover:bg-white/10'}`}
+              className={`w-full py-6 rounded-3xl font-black text-xs tracking-[0.5em] transition-all flex items-center justify-center gap-4 ${data.night.streakConfirmed ? 'bg-[#00FF99] text-black shadow-[0_0_30px_rgba(0,255,153,0.3)]' : 'bg-white/5 text-[#222] hover:bg-white/10'}`}
             >
-              {data.night.streakConfirmed && <CheckCircle size={18} />}
-              {data.night.streakConfirmed ? 'CYCLE CONFIRMED' : 'INITIALIZE TERMINATION'}
+              {data.night.streakConfirmed ? 'CYCLE_SUCCESS_VERIFIED' : 'CONFIRM_CYCLE_SUCCESS'}
             </button>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };

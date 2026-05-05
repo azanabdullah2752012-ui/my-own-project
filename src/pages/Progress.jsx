@@ -1,153 +1,93 @@
-import React, { useState } from 'react';
-import { BarChart3, ClipboardList, TrendingUp, Zap, Activity, Calendar } from 'lucide-react';
+import React from 'react';
+import { BarChart3, TrendingUp, Activity, Target, Zap, Shield } from 'lucide-react';
 
 const Progress = ({ data, update }) => {
-  const [newReview, setNewReview] = useState({
-    well: '',
-    failed: '',
-    improve: '',
-    score: 5
-  });
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    const review = {
-      ...newReview,
-      date: new Date().toISOString()
-    };
-    update({
-      ...data,
-      reviews: [review, ...data.reviews]
-    });
-    setNewReview({ well: '', failed: '', improve: '', score: 5 });
-  };
-
   return (
-    <div className="space-y-12">
-      <header>
-        <h2 className="text-3xl font-bold">Performance Analytics</h2>
-        <p className="text-secondary text-sm">System output and efficiency metrics.</p>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* KEY METRICS */}
-        <div className="glass-panel p-8 flex flex-col justify-between aspect-square">
-          <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Efficiency Rating</h3>
-            <div className="text-5xl font-black text-white">84<span className="text-[#00FF99]">%</span></div>
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-secondary font-medium">Tasks Cleared</span>
-              <span className="font-bold">24 / 28</span>
-            </div>
-            <div className="progress-container">
-              <div className="progress-bar" style={{ width: '84%' }} />
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-panel p-8 flex flex-col justify-between aspect-square">
-          <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Cognitive Output</h3>
-            <div className="text-5xl font-black text-white">32.5<span className="text-secondary text-lg ml-1">Hrs</span></div>
-          </div>
-          <div className="flex gap-1 items-end h-24">
+    <div className="bento-grid fade-in">
+      {/* OVERVIEW STATS */}
+      <section className="bento-card col-span-4 flex flex-col justify-between">
+        <h3 className="card-title">Cognitive Hours</h3>
+        <div className="flex items-end justify-between">
+          <div className="metric-value">32.5</div>
+          <div className="flex gap-1 h-12 items-end">
             {[4, 6, 3, 8, 5, 4, 2].map((h, i) => (
-              <div key={i} className="flex-grow bg-[#00FF99]/20 rounded-t-sm relative group" style={{ height: `${(h/8)*100}%` }}>
-                <div className="absolute inset-0 bg-[#00FF99] opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
+              <div key={i} className="flex-grow bg-[#00FF99]/20 w-1.5 rounded-full" style={{ height: `${(h/8)*100}%` }} />
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="glass-panel p-8 flex flex-col justify-between aspect-square">
-          <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Operational Streak</h3>
-            <div className="text-5xl font-black text-[#00FF99]">12<span className="text-white text-lg ml-1">Days</span></div>
+      <section className="bento-card col-span-4 flex flex-col justify-between border-[#00FF99]/20">
+        <h3 className="card-title text-[#00FF99]">Output Score</h3>
+        <div className="flex items-end justify-between">
+          <div className="metric-value text-[#00FF99]">84%</div>
+          <Activity size={24} className="text-[#00FF99] mb-2" />
+        </div>
+      </section>
+
+      <section className="bento-card col-span-4 flex flex-col justify-between">
+        <h3 className="card-title">Neural Stability</h3>
+        <div className="flex items-end justify-between">
+          <div className="metric-value">100%</div>
+          <Shield size={24} className="text-[#00FF99] mb-2" />
+        </div>
+      </section>
+
+      {/* WEEKLY TIMELINE - BENTO GRID STYLE */}
+      <section className="bento-card col-span-8 flex flex-col justify-between">
+        <h3 className="card-title">Operational History</h3>
+        <div className="flex justify-between items-end gap-1 h-32">
+          {Array.from({length: 14}).map((_, i) => (
+            <div key={i} className="flex-grow flex flex-col gap-1">
+              <div className={`flex-grow rounded-xl transition-all ${i < 12 ? 'bg-[#00FF99]' : 'bg-white/5'}`} style={{ height: `${Math.random() * 60 + 40}%` }} />
+              <div className="text-[6px] text-[#222] text-center font-bold">0{i+1}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* REVIEWS LIST */}
+      <section className="bento-card col-span-4 flex flex-col">
+        <div className="flex justify-between items-center mb-8">
+          <h3 className="card-title mb-0">System Archives</h3>
+          <Zap size={16} className="text-[#00FF99]" />
+        </div>
+        <div className="space-y-4 overflow-y-auto pr-2" style={{ maxHeight: '200px' }}>
+          {data.reviews.map((review, i) => (
+            <div key={i} className="flex items-center justify-between group p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-white">{new Date(review.date).toLocaleDateString()}</span>
+                <span className="text-[8px] text-[#444] font-bold uppercase tracking-widest">LOG_{data.reviews.length - i}</span>
+              </div>
+              <div className="text-[#00FF99] font-black text-lg">{review.score}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WEEKLY DEBRIEF FORM */}
+      <section className="bento-card col-span-12">
+        <h3 className="card-title">Weekly Post-Operational Review</h3>
+        <div className="grid grid-cols-2 gap-12 mt-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] text-[#222] font-black uppercase tracking-widest block">Success_Vectors</label>
+              <textarea className="w-full bg-white/5 border-none p-6 rounded-3xl text-sm font-bold text-[#444] focus:text-white min-h-[100px] focus:ring-0" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] text-[#222] font-black uppercase tracking-widest block">Root_Failures</label>
+              <textarea className="w-full bg-white/5 border-none p-6 rounded-3xl text-sm font-bold text-[#444] focus:text-white min-h-[100px] focus:ring-0" />
+            </div>
           </div>
-          <div className="grid grid-cols-7 gap-2">
-            {Array.from({length: 21}).map((_, i) => (
-              <div key={i} className={`aspect-square rounded-sm ${i < 12 ? 'bg-[#00FF99]' : 'bg-white/5'}`} />
-            ))}
+          <div className="flex flex-col justify-between">
+            <div className="space-y-2">
+              <label className="text-[10px] text-[#222] font-black uppercase tracking-widest block">Core_Improvement</label>
+              <textarea className="w-full bg-white/5 border-none p-6 rounded-3xl text-sm font-bold text-[#444] focus:text-white min-h-[100px] focus:ring-0" />
+            </div>
+            <button className="btn-pill py-4 w-full flex justify-center tracking-[0.5em] mt-8 uppercase">Commit_Review</button>
           </div>
         </div>
-      </div>
-
-      <div className="grid-cols">
-        {/* WEEKLY REVIEW */}
-        <section className="md:col-span-2 space-y-6">
-          <div className="flex items-center gap-3">
-            <ClipboardList className="text-[#00FF99]" size={20} />
-            <h3 className="text-sm font-bold uppercase tracking-widest">Post-Operational Review</h3>
-          </div>
-          <form onSubmit={handleReviewSubmit} className="glass-panel p-8 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] text-secondary font-bold uppercase tracking-widest block">Primary Successes</label>
-                <textarea 
-                  className="w-full bg-white/5 border border-white/5 p-4 rounded-2xl text-sm min-h-[120px] focus:ring-1 focus:ring-[#00FF99]"
-                  value={newReview.well}
-                  onChange={(e) => setNewReview({...newReview, well: e.target.value})}
-                  placeholder="What went well?"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] text-secondary font-bold uppercase tracking-widest block">System Failures</label>
-                <textarea 
-                  className="w-full bg-white/5 border border-white/5 p-4 rounded-2xl text-sm min-h-[120px] focus:ring-1 focus:ring-[#00FF99]"
-                  value={newReview.failed}
-                  onChange={(e) => setNewReview({...newReview, failed: e.target.value})}
-                  placeholder="What broke in the protocol?"
-                />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] text-secondary font-bold uppercase tracking-widest block">Optimization Vector</label>
-              <textarea 
-                className="w-full bg-white/5 border border-white/5 p-4 rounded-2xl text-sm min-h-[120px] focus:ring-1 focus:ring-[#00FF99]"
-                value={newReview.improve}
-                onChange={(e) => setNewReview({...newReview, improve: e.target.value})}
-                placeholder="Next week's focus area..."
-              />
-            </div>
-            <div className="flex items-center justify-between p-6 bg-white/5 rounded-3xl">
-              <div>
-                <div className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">Self-Performance Rating</div>
-                <div className="text-lg font-bold">{newReview.score} / 10</div>
-              </div>
-              <input 
-                type="range" 
-                min="1" 
-                max="10" 
-                className="w-48 accent-[#00FF99]"
-                value={newReview.score}
-                onChange={(e) => setNewReview({...newReview, score: parseInt(e.target.value)})}
-              />
-            </div>
-            <button type="submit" className="w-full btn-primary py-4 uppercase tracking-[0.3em] font-black">Commit to Archive</button>
-          </form>
-        </section>
-
-        {/* LOGS */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Calendar className="text-[#00FF99]" size={20} />
-            <h3 className="text-sm font-bold uppercase tracking-widest">Archive History</h3>
-          </div>
-          <div className="space-y-3">
-            {data.reviews.map((review, i) => (
-              <div key={i} className="glass-panel p-6 flex justify-between items-center group">
-                <div>
-                  <div className="text-xs font-bold text-white mb-1">{new Date(review.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                  <div className="text-[10px] text-secondary uppercase font-bold">Review Archive #{data.reviews.length - i}</div>
-                </div>
-                <div className="text-[#00FF99] font-black text-xl">{review.score}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
+      </section>
     </div>
   );
 };

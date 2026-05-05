@@ -1,111 +1,131 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Zap, Clock, Brain, MessageSquare } from 'lucide-react';
+import { Plus, CheckCircle2, Circle, Zap, Activity, Clock, ChevronRight, MoreHorizontal } from 'lucide-react';
 
 const Dashboard = ({ data, update }) => {
   const [newTask, setNewTask] = useState('');
 
-  const handleUpdate = (field, value) => {
-    update({ ...data, [field]: value });
-  };
-
-  const addTask = () => {
-    if (newTask && data.secondaryTasks.length < 5) {
-      handleUpdate('secondaryTasks', [...data.secondaryTasks, { id: crypto.randomUUID(), title: newTask, done: false }]);
-      setNewTask('');
-    }
-  };
-
   const toggleTask = (id) => {
-    const tasks = data.secondaryTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
-    handleUpdate('secondaryTasks', tasks);
+    const tasks = data.dashboard.secondaryTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    update({ ...data, dashboard: { ...data.dashboard, secondaryTasks: tasks } });
   };
 
   return (
-    <div className="flex-grow flex flex-col items-center justify-center fade-in overflow-hidden">
-      
-      {/* LAYER 1: CORE FOCUS */}
-      <section className="layer-1 w-full">
-        <div className="mission-label">Primary Directive</div>
-        <input
-          type="text"
-          maxLength={120}
-          placeholder="ENTER MAIN MISSION..."
-          className="mission-input"
-          value={data.mainMission}
-          onChange={(e) => handleUpdate('mainMission', e.target.value)}
-        />
-      </section>
-
-      {/* LAYER 2: SUPPORT SYSTEM */}
-      <section className="layer-2 w-full space-y-12">
-        {/* Support Stats Line */}
-        <div className="flex justify-center gap-12 text-[10px] font-black tracking-[0.3em] text-[#333]">
-          <div className="flex items-center gap-3 group">
-            <span className="group-hover:text-[#00FF99] transition-colors">STREAK</span>
-            <span className="streak-badge">{data.streak}</span>
+    <div className="dashboard-grid">
+      {/* LEFT COLUMN */}
+      <div>
+        <section className="hero-banner">
+          <div className="hero-text">
+            <h1>Empower Your<br />Empire Journey!</h1>
+            <p>Unlock your full potential with a structured execution system. Start now and elevate your output.</p>
+            <button className="btn-primary">Initialize Mission</button>
           </div>
-          <div className="flex items-center gap-3 group">
-            <span className="group-hover:text-[#00FF99] transition-colors">FOCUS</span>
-            <span className="text-white font-black text-lg">{data.studyHours}h <span className="text-[#222]">{data.focusSessions}s</span></span>
+          <div className="relative w-64 h-64 bg-blue-600/10 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full animate-pulse" />
+            <Zap size={120} className="text-blue-500 relative z-10" />
           </div>
-        </div>
+        </section>
 
-        {/* Compact Tasks */}
-        <div className="space-y-2 max-w-sm mx-auto">
-          {data.secondaryTasks.map((task) => (
-            <button
-              key={task.id}
-              onClick={() => toggleTask(task.id)}
-              className={`list-item w-full ${task.done ? 'done' : ''}`}
-            >
-              <div className={`w-1.5 h-1.5 rounded-full ${task.done ? 'bg-[#222]' : 'bg-[#00FF99]'}`} />
-              <span className="tracking-wide text-xs font-bold uppercase">{task.title}</span>
-            </button>
-          ))}
-          {data.secondaryTasks.length < 5 && (
-            <div className="flex items-center gap-3 pt-4 opacity-10 focus-within:opacity-100 transition-opacity">
-              <Plus size={12} className="text-white" />
-              <input
-                placeholder="SUB_TASK..."
-                className="text-[10px] font-bold uppercase tracking-widest w-full"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addTask()}
-              />
+        <div className="grid grid-cols-2 gap-8">
+          {/* ACTIVITY FEED */}
+          <section>
+            <div className="card-header">
+              <h3 className="card-title">Activity</h3>
+              <button className="text-blue-500 text-[10px] font-bold uppercase tracking-widest">View All</button>
             </div>
-          )}
-        </div>
-      </section>
+            <div className="space-y-4">
+              {data.dashboard.secondaryTasks.map(task => (
+                <div key={task.id} className="card flex items-center justify-between p-4 mb-0">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-panel-hover flex items-center justify-center">
+                      <Activity size={18} className="text-secondary" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-white">{task.title}</div>
+                      <div className="text-[10px] text-dim font-bold uppercase">System_Task</div>
+                    </div>
+                  </div>
+                  <button onClick={() => toggleTask(task.id)}>
+                    {task.done ? <CheckCircle2 size={18} className="text-green-500" /> : <Circle size={18} className="text-dim" />}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
 
-      {/* LAYER 3: AMBIENT SYSTEM */}
-      <section className="layer-3">
-        <div className="ambient-data group cursor-pointer">
-          <Brain size={12} />
-          <span>{data.mood || 'STABLE'}</span>
-          <div className="absolute bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-all bg-black p-4 border border-white/5 space-x-4 flex">
-            {['Focused', 'Normal', 'Tired', 'Distracted'].map(m => (
-              <button key={m} onClick={() => handleUpdate('mood', m)} className={`text-[8px] font-black ${data.mood === m ? 'text-[#00FF99]' : 'text-[#444]'}`}>{m.toUpperCase()}</button>
+          {/* ACTIVE MISSIONS (COURSES) */}
+          <section>
+            <div className="card-header">
+              <h3 className="card-title">Active Missions</h3>
+              <button className="text-blue-500 text-[10px] font-bold uppercase tracking-widest">View All</button>
+            </div>
+            <div className="space-y-4">
+              {data.projects.list.slice(0, 2).map(project => (
+                <div key={project.id} className="card p-6 mb-0">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h4 className="text-lg font-bold mb-1">{project.name}</h4>
+                      <div className="text-[10px] text-dim font-black uppercase tracking-widest">Mission_Unit</div>
+                    </div>
+                    <span className="badge bg-blue-500/10 text-blue-500">Active</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-black uppercase text-dim">
+                      <span>Deployment</span>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-black rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500" style={{ width: `${project.progress}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* RIGHT COLUMN: CALENDAR & STATS */}
+      <div className="space-y-8">
+        <section className="card bg-sidebar">
+          <div className="card-header">
+            <h3 className="card-title">February 2023</h3>
+            <div className="flex gap-2">
+              <button className="strip-item w-8 h-8"><ChevronRight size={14} className="rotate-180" /></button>
+              <button className="strip-item w-8 h-8"><ChevronRight size={14} /></button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-dim mb-4">
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => <div key={d}>{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-2">
+            {Array.from({length: 28}).map((_, i) => (
+              <div key={i} className={`h-8 flex items-center justify-center rounded-lg text-xs font-bold ${i === 2 ? 'bg-blue-600 text-white' : 'text-white/40 hover:bg-white/5 cursor-pointer'}`}>
+                {i + 1}
+              </div>
             ))}
           </div>
-        </div>
-        <div className="ambient-data group cursor-pointer max-w-[200px] truncate">
-          <MessageSquare size={12} />
-          <span>{data.dailyNote || 'NO LOGS'}</span>
-          <div className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-80 opacity-0 group-hover:opacity-100 transition-all bg-black p-6 border border-white/5">
-            <textarea
-              className="w-full h-32 text-[10px] font-bold uppercase tracking-widest text-[#666] leading-relaxed"
-              value={data.dailyNote}
-              onChange={(e) => handleUpdate('dailyNote', e.target.value)}
-              placeholder="ENTER SYSTEM LOG..."
-            />
-          </div>
-        </div>
-        <div className="ambient-data">
-          <Clock size={12} />
-          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-        </div>
-      </section>
+        </section>
 
+        <section className="card space-y-6">
+          <h3 className="card-title">Operational Load</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-panel-hover border-l-4 border-blue-500">
+              <div className="flex-grow">
+                <div className="text-xs font-bold">Deep Work Session</div>
+                <div className="text-[9px] text-dim font-black uppercase tracking-widest mt-1">9:00 AM - 11:00 AM</div>
+              </div>
+              <MoreHorizontal size={14} className="text-dim" />
+            </div>
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-panel-hover border-l-4 border-green-500">
+              <div className="flex-grow">
+                <div className="text-xs font-bold">Protocol Review</div>
+                <div className="text-[9px] text-dim font-black uppercase tracking-widest mt-1">1:00 PM - 2:00 PM</div>
+              </div>
+              <MoreHorizontal size={14} className="text-dim" />
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

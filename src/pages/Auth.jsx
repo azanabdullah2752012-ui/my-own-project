@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
+import { Shield } from 'lucide-react';
 
 const Auth = () => {
   const [password, setPassword] = useState('');
@@ -16,34 +17,35 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black overflow-hidden">
-      <div className="text-center space-y-8 w-full max-w-sm px-10">
-        <div className="text-[10px] font-black tracking-[0.6em] text-[#00FF99] mb-12 uppercase animate-pulse">
-          Auth_Required
+    <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="card w-full max-w-sm text-center space-y-8 py-12 border-white/5 bg-[#050505]">
+        <div className="flex justify-center mb-4">
+          <div className="p-4 rounded-2xl bg-[#00FF99]/5 border border-[#00FF99]/20 shadow-[0_0_30px_rgba(0,255,153,0.1)]">
+            <Shield size={40} className="text-[#00FF99]" />
+          </div>
         </div>
         
-        <form onSubmit={handleSubmit} className="relative">
+        <div className="space-y-2">
+          <h1 className="text-xl font-black tracking-tighter text-white uppercase italic">Empire OS</h1>
+          <div className="text-[9px] text-[#444] font-bold tracking-[0.4em] uppercase">Security Protocols Active</div>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="px-6 space-y-4">
           <input
             type="password"
             placeholder="ACCESS_KEY"
-            className={`w-full bg-transparent border-none text-center text-xl font-black tracking-[0.5em] text-white focus:ring-0 placeholder:text-[#111] ${error ? 'text-red-500' : ''}`}
+            className={`w-full bg-black border ${error ? 'border-red-500' : 'border-white/5'} p-4 text-center font-bold tracking-[0.5em] text-[#00FF99] focus:border-[#00FF99] transition-all`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
           />
-          <div className="absolute bottom-0 left-0 w-full h-px bg-white/5 overflow-hidden">
-            <div className={`h-full bg-[#00FF99] transition-all duration-1000 ${password ? 'w-full' : 'w-0'}`} />
-          </div>
+          <button type="submit" className="w-full btn-primary py-4 tracking-widest text-[10px] uppercase">Initialize_Boot</button>
         </form>
         
         {error && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-red-900 text-[8px] font-black tracking-widest uppercase"
-          >
-            Terminal_Refused
-          </motion.div>
+          <div className="text-red-500 text-[8px] font-black tracking-widest uppercase">
+            Access_Denied. Termination_Imminent.
+          </div>
         )}
       </div>
     </div>
