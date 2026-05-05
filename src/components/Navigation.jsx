@@ -1,29 +1,48 @@
 import React from 'react';
 import { LayoutDashboard, Target, Settings, BarChart2, BookOpen, FolderKanban, Layers, Grid, Zap, Plus } from 'lucide-react';
 
-const Navigation = ({ currentView, setView }) => {
+const Navigation = ({ currentView, setView, onQuickAdd }) => {
   const mainItems = [
-    { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard size={16} /> },
-    { id: 'goals',     label: 'Objectives', icon: <Target size={16} /> },
-    { id: 'system',   label: 'Protocol',   icon: <Settings size={16} /> },
+    { id: 'dashboard', label: 'Overview',    icon: <LayoutDashboard size={16} /> },
+    { id: 'goals',     label: 'Objectives',  icon: <Target          size={16} /> },
+    { id: 'system',    label: 'Protocol',    icon: <Settings        size={16} /> },
   ];
   const intelItems = [
-    { id: 'progress', label: 'Analytics',       icon: <BarChart2 size={16} /> },
-    { id: 'vault',    label: 'Knowledge Vault', icon: <BookOpen size={16} /> },
+    { id: 'progress', label: 'Analytics',       icon: <BarChart2    size={16} /> },
+    { id: 'vault',    label: 'Knowledge Vault', icon: <BookOpen     size={16} /> },
     { id: 'projects', label: 'Missions',        icon: <FolderKanban size={16} /> },
+  ];
+
+  // Strip icons — each navigates to a section
+  const stripItems = [
+    { id: 'dashboard', icon: <Grid    size={20} />, title: 'Dashboard' },
+    { id: 'projects',  icon: <Layers  size={20} />, title: 'Missions'  },
+    { id: 'vault',     icon: <Zap     size={20} />, title: 'Vault'     },
   ];
 
   return (
     <>
       {/* FAR LEFT ICON STRIP */}
       <aside className="sidebar-strip">
-        <div className="strip-logo">E</div>
-        <button className={`strip-app ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>
-          <Grid size={20} />
-        </button>
-        <button className="strip-app"><Layers size={20} /></button>
-        <button className="strip-app"><Zap size={20} /></button>
-        <button className="strip-add" style={{ marginTop: 'auto' }}>
+        <div className="strip-logo" title="Empire OS">E</div>
+
+        {stripItems.map(item => (
+          <button
+            key={item.id}
+            className={`strip-app ${currentView === item.id ? 'active' : ''}`}
+            title={item.title}
+            onClick={() => setView(item.id)}
+          >
+            {item.icon}
+          </button>
+        ))}
+
+        {/* QUICK ADD */}
+        <button
+          className="strip-add"
+          title="Quick Add (⌘K)"
+          onClick={onQuickAdd}
+        >
           <Plus size={18} />
         </button>
       </aside>
@@ -54,9 +73,9 @@ const Navigation = ({ currentView, setView }) => {
           </button>
         ))}
 
-        <button className="nav-create-btn" style={{ marginTop: 24 }}>
+        <button className="nav-create-btn" style={{ marginTop: 24 }} onClick={onQuickAdd}>
           <Plus size={14} />
-          Create Mission
+          Quick Add  ⌘K
         </button>
       </aside>
     </>
