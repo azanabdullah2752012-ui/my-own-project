@@ -73,15 +73,16 @@ input:focus, textarea:focus, select:focus {
 /* Glassmorphism */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
 /* Utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -96,8 +97,9 @@ input:focus, textarea:focus, select:focus {
 .mb-4 { margin-bottom: 1rem; }
 
 h1, h2, h3 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
 }
 
 .text-accent { color: var(--accent-color); }
@@ -105,21 +107,40 @@ h1, h2, h3 {
 
 /* Custom components */
 .btn-primary {
-  background-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color) 0%, #00CC7A 100%);
   color: var(--bg-color);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 0.85rem 1.75rem;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(0, 255, 153, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-color-hover);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #00CC7A 0%, var(--accent-color) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 153, 0.4);
 }
 
 .card {
-  background: var(--bg-muted);
-  padding: 1.5rem;
-  border-radius: 12px;
+  background: linear-gradient(180deg, #1A1A1A 0%, #111111 100%);
+  padding: 2rem;
+  border-radius: 16px;
   border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(0, 255, 153, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 5px rgba(0, 255, 153, 0.2); }
+  50% { box-shadow: 0 0 15px rgba(0, 255, 153, 0.4); }
+  100% { box-shadow: 0 0 5px rgba(0, 255, 153, 0.2); }
+}
+
+.glow-on-hover:hover {
+  animation: pulse-glow 2s infinite;
 }
