@@ -7,6 +7,8 @@ import System from './pages/System';
 import Progress from './pages/Progress';
 import Vault from './pages/Vault';
 import Projects from './pages/Projects';
+import Habits from './pages/Habits';
+import Journal from './pages/Journal';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Bell, HelpCircle, Settings, X, Plus,
@@ -329,6 +331,8 @@ const App = () => {
       case 'progress':  return <Progress   {...props} />;
       case 'vault':     return <Vault      {...props} />;
       case 'projects':  return <Projects   {...props} />;
+      case 'habits':    return <Habits     {...props} />;
+      case 'journal':   return <Journal    {...props} />;
       default:          return <Dashboard  data={data} update={(val) => updateModule(null, val)} />;
     }
   };
