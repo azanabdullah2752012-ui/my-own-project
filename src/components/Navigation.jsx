@@ -1,42 +1,46 @@
 import React from 'react';
-import { LayoutDashboard, Target, Settings, BarChart2, Book, FolderKanban, Terminal } from 'lucide-react';
+import { LayoutDashboard, Target, Settings, BarChart2, Book, FolderKanban } from 'lucide-react';
 
 const Navigation = ({ currentView, setView }) => {
   const tabs = [
-    { id: 'dashboard', label: 'EXECUTION', icon: <LayoutDashboard size={14} /> },
-    { id: 'goals', label: 'OBJECTIVES', icon: <Target size={14} /> },
-    { id: 'system', label: 'PROTOCOL', icon: <Settings size={14} /> },
-    { id: 'progress', label: 'ANALYTICS', icon: <BarChart2 size={14} /> },
-    { id: 'vault', label: 'ARCHIVE', icon: <Book size={14} /> },
-    { id: 'projects', label: 'MISSIONS', icon: <FolderKanban size={14} /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { id: 'goals', label: 'Goals', icon: <Target size={20} /> },
+    { id: 'system', label: 'System', icon: <Settings size={20} /> },
+    { id: 'progress', label: 'Progress', icon: <BarChart2 size={20} /> },
+    { id: 'vault', label: 'Vault', icon: <Book size={20} /> },
+    { id: 'projects', label: 'Projects', icon: <FolderKanban size={20} /> },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 border-b border-[#1A1A1A] bg-[#050505]/95 backdrop-blur-sm">
-      <div className="container py-2 flex items-center justify-between">
+    <aside className="sidebar">
+      <div className="mb-12 px-4">
+        <h1 className="text-xl font-black tracking-tighter text-white">EMPIRE <span className="text-[#00FF99]">OS</span></h1>
+        <div className="text-[10px] text-secondary font-bold tracking-[0.2em] mt-1 opacity-50 uppercase">Private Command Center</div>
+      </div>
+      
+      <nav className="flex-grow">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setView(tab.id)}
+            className={`w-full nav-item ${currentView === tab.id ? 'active' : ''}`}
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+      
+      <div className="pt-8 border-t border-white/5 px-4">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-[#00FF99]/10 border border-[#00FF99]/20">
-            <Terminal size={18} className="text-[#00FF99]" />
-          </div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00FF99] to-[#00CC7A]" />
           <div>
-            <div className="text-[#00FF99] font-black text-xs tracking-[0.3em]">EMPIRE_OS_V1.0</div>
-            <div className="text-[8px] text-[#444] font-bold tracking-widest uppercase">System Core / Active</div>
+            <div className="text-xs font-bold text-white">ADMIN_USER</div>
+            <div className="text-[10px] text-secondary">System Online</div>
           </div>
-        </div>
-        <div className="flex">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setView(tab.id)}
-              className={`nav-tab flex items-center gap-2 ${currentView === tab.id ? 'active' : ''}`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
         </div>
       </div>
-    </nav>
+    </aside>
   );
 };
 

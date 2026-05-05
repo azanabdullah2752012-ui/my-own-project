@@ -33,10 +33,11 @@ const App = () => {
   return (
     <div className="app-container min-h-screen bg-[#0A0A0A] text-white">
       <Navigation currentView={currentView} setView={setCurrentView} />
-      <main className="container pt-24 pb-12">
+      <main className="main-content">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentView}
+            className="fade-in"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}

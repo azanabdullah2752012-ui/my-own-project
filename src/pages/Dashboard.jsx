@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Brain, CheckCircle2, Circle, Activity, Shield, Clock, Zap } from 'lucide-react';
+import { Plus, Trash2, Brain, CheckCircle2, Circle, Zap, Activity, Shield, Clock } from 'lucide-react';
 
 const Dashboard = ({ data, update }) => {
   const [newTask, setNewTask] = useState('');
@@ -9,189 +9,157 @@ const Dashboard = ({ data, update }) => {
   };
 
   const addTask = () => {
-    if (newTask && data.secondaryTasks.length < 3) {
+    if (newTask && data.secondaryTasks.length < 5) {
       handleUpdate('secondaryTasks', [...data.secondaryTasks, { id: crypto.randomUUID(), title: newTask, done: false }]);
       setNewTask('');
     }
   };
 
-  const toggleTask = (index) => {
-    const tasks = [...data.secondaryTasks];
-    tasks[index].done = !tasks[index].done;
+  const toggleTask = (id) => {
+    const tasks = data.secondaryTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
     handleUpdate('secondaryTasks', tasks);
   };
 
-  const removeTask = (index) => {
-    const tasks = data.secondaryTasks.filter((_, i) => i !== index);
+  const removeTask = (id) => {
+    const tasks = data.secondaryTasks.filter(t => t.id !== id);
     handleUpdate('secondaryTasks', tasks);
   };
 
-  const moods = ['Focused 🧠', 'Normal 😐', 'Tired 😴', 'Distracted ⚡'];
+  const moods = [
+    { label: 'Focused', icon: '🧠' },
+    { label: 'Normal', icon: '😐' },
+    { label: 'Tired', icon: '😴' },
+    { label: 'Distracted', icon: '⚡' }
+  ];
 
   return (
-    <div className="grid grid-cols-12 gap-4">
-      {/* SYSTEM STATUS BAR */}
-      <div className="col-span-12 flex gap-4 mb-4">
-        <div className="hud-panel flex-grow p-2 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Activity size={12} className="text-[#00FF99]" />
-              <span className="text-[10px] text-[#444] font-bold uppercase tracking-widest">Neural Link:</span>
-              <span className="text-[10px] text-[#00FF99] font-bold">STABLE</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield size={12} className="text-[#00FF99]" />
-              <span className="text-[10px] text-[#444] font-bold uppercase tracking-widest">Auth:</span>
-              <span className="text-[10px] text-[#00FF99] font-bold">LEVEL_01</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock size={12} className="text-[#444]" />
-            <span className="text-[10px] text-[#444] font-mono">{new Date().toLocaleTimeString()}</span>
+    <div className="space-y-8">
+      {/* HEADER */}
+      <header className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold">Command Center</h2>
+          <p className="text-secondary text-sm">System operational. All modules active.</p>
+        </div>
+        <div className="flex gap-4">
+          <div className="glass-panel px-4 py-2 flex items-center gap-3">
+            <Clock size={16} className="text-secondary" />
+            <span className="text-sm font-bold">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* MAIN MISSION */}
-      <section className="col-span-12 md:col-span-8 hud-panel">
-        <div className="hud-header">
-          <div className="hud-title"><Zap size={14} /> Critical Objective</div>
-          <div className="text-[8px] text-[#444] font-bold">ID: MISSION_CONTROL_001</div>
+      {/* TODAY'S MISSION */}
+      <section className="glass-panel p-8 border-l-4 border-[#00FF99]">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap size={14} className="text-[#00FF99]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00FF99]">Today's Main Mission</span>
         </div>
-        <div className="hud-content">
-          <input
-            type="text"
-            maxLength={120}
-            placeholder="ENTER PRIMARY DIRECTIVE..."
-            className="w-full text-3xl font-black bg-transparent border-none p-0 focus:ring-0 placeholder:text-[#1A1A1A] text-[#00FF99]"
-            value={data.mainMission}
-            onChange={(e) => handleUpdate('mainMission', e.target.value)}
-          />
-        </div>
+        <input
+          type="text"
+          maxLength={120}
+          placeholder="What is your primary focus today?"
+          className="w-full text-4xl font-bold bg-transparent border-none p-0 focus:ring-0 placeholder:text-white/10"
+          value={data.mainMission}
+          onChange={(e) => handleUpdate('mainMission', e.target.value)}
+        />
       </section>
 
-      {/* STREAK */}
-      <section className="col-span-12 md:col-span-4 hud-panel">
-        <div className="hud-header">
-          <div className="hud-title">Discipline Streak</div>
-        </div>
-        <div className="hud-content flex items-center justify-between">
-          <div>
-            <div className="text-5xl font-black text-[#00FF99] leading-none">{data.streak.toString().padStart(2, '0')}</div>
-            <div className="text-[8px] text-[#444] font-bold uppercase mt-2">Consecutive Cycles</div>
+      <div className="grid-cols">
+        {/* TASK LIST */}
+        <section className="glass-panel p-6 flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-sm font-bold uppercase tracking-widest">Execution List</h3>
+            <span className="text-[10px] font-bold text-secondary">{data.secondaryTasks.filter(t => t.done).length}/{data.secondaryTasks.length}</span>
           </div>
-          <div className="flex flex-col gap-2">
-            <button onClick={() => handleUpdate('streak', data.streak + 1)} className="btn-terminal py-2 px-4">+1 CYCLE</button>
-            <button onDoubleClick={() => handleUpdate('streak', 0)} className="text-[8px] text-[#333] hover:text-red-500 font-bold uppercase text-right">Reset_Core</button>
-          </div>
-        </div>
-      </section>
-
-      {/* SECONDARY TASKS */}
-      <section className="col-span-12 md:col-span-6 hud-panel">
-        <div className="hud-header">
-          <div className="hud-title">Sub-Tasks Matrix</div>
-          <div className="text-[8px] text-[#444] font-bold">LOADED: {data.secondaryTasks.length}/03</div>
-        </div>
-        <div className="hud-content">
-          <div className="space-y-3 mb-6">
-            {data.secondaryTasks.map((task, i) => (
-              <div key={i} className="flex items-center justify-between group p-2 border-l-2 border-[#1A1A1A] hover:border-[#00FF99] hover:bg-[#00FF99]/5 transition-all">
-                <button onClick={() => toggleTask(i)} className="flex items-center gap-4 flex-grow text-left">
-                  {task.done ? <CheckCircle2 size={16} className="text-[#00FF99]" /> : <Circle size={16} className="text-[#333]" />}
-                  <span className={`text-xs font-bold uppercase tracking-wide ${task.done ? 'text-[#333] line-through' : 'text-white'}`}>{task.title}</span>
+          <div className="space-y-3 flex-grow">
+            {data.secondaryTasks.map((task) => (
+              <div key={task.id} className="flex items-center justify-between group">
+                <button onClick={() => toggleTask(task.id)} className="flex items-center gap-3 flex-grow text-left">
+                  {task.done ? <CheckCircle2 size={18} className="text-[#00FF99]" /> : <Circle size={18} className="text-white/20" />}
+                  <span className={`text-sm ${task.done ? 'line-through text-secondary' : 'text-white'}`}>{task.title}</span>
                 </button>
-                <button onClick={() => removeTask(i)} className="opacity-0 group-hover:opacity-100 text-[#333] hover:text-red-500 transition-opacity">
+                <button onClick={() => removeTask(task.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-500 transition-opacity">
                   <Trash2 size={14} />
                 </button>
               </div>
             ))}
+            {data.secondaryTasks.length < 5 && (
+              <div className="flex gap-2 mt-4 pt-4 border-t border-white/5">
+                <input
+                  type="text"
+                  placeholder="Add secondary task..."
+                  className="flex-grow bg-transparent border-none p-0 text-sm focus:ring-0"
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                />
+                <button onClick={addTask} className="text-[#00FF99]"><Plus size={18} /></button>
+              </div>
+            )}
           </div>
-          {data.secondaryTasks.length < 3 && (
-            <div className="flex gap-2">
+        </section>
+
+        {/* STATS */}
+        <section className="glass-panel p-6">
+          <h3 className="text-sm font-bold uppercase tracking-widest mb-6">Core Metrics</h3>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/5 rounded-lg"><Activity size={16} className="text-[#00FF99]" /></div>
+                <span className="text-sm font-medium text-secondary">Study Hours</span>
+              </div>
               <input
-                type="text"
-                placeholder="ADD SUB-TASK..."
-                className="flex-grow text-[10px]"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                type="number"
+                className="w-16 bg-transparent border-none text-right font-bold text-lg p-0"
+                value={data.studyHours}
+                onChange={(e) => handleUpdate('studyHours', parseFloat(e.target.value) || 0)}
               />
-              <button onClick={addTask} className="btn-terminal py-1 px-4 text-xs">+</button>
             </div>
-          )}
-        </div>
-      </section>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/5 rounded-lg"><Brain size={16} className="text-[#00FF99]" /></div>
+                <span className="text-sm font-medium text-secondary">Focus Sessions</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={() => handleUpdate('focusSessions', Math.max(0, data.focusSessions - 1))} className="text-secondary">-</button>
+                <span className="font-bold">{data.focusSessions}</span>
+                <button onClick={() => handleUpdate('focusSessions', data.focusSessions + 1)} className="text-[#00FF99]">+</button>
+              </div>
+            </div>
+            <div className="pt-6 border-t border-white/5 flex justify-between items-center">
+              <span className="text-sm font-medium text-secondary">Current Streak</span>
+              <div className="badge badge-green">{data.streak} DAYS</div>
+            </div>
+          </div>
+        </section>
 
-      {/* TRACKERS */}
-      <section className="col-span-12 md:col-span-6 hud-panel">
-        <div className="hud-header">
-          <div className="hud-title">Resource Allocation</div>
-        </div>
-        <div className="hud-content space-y-6">
-          <div className="flex justify-between items-center border-b border-[#1A1A1A] pb-4">
-            <div>
-              <div className="text-[10px] text-white font-bold uppercase">Study Hours</div>
-              <div className="text-[8px] text-[#444] font-bold uppercase">Manual Log / Today</div>
-            </div>
-            <input
-              type="number"
-              className="w-16 text-center text-lg font-black"
-              value={data.studyHours}
-              onChange={(e) => handleUpdate('studyHours', parseFloat(e.target.value) || 0)}
-            />
+        {/* MOOD */}
+        <section className="glass-panel p-6">
+          <h3 className="text-sm font-bold uppercase tracking-widest mb-6">Current State</h3>
+          <div className="flex justify-between">
+            {moods.map((m) => (
+              <button
+                key={m.label}
+                onClick={() => handleUpdate('mood', m.label)}
+                className={`mood-icon ${data.mood === m.label ? 'active' : ''}`}
+                title={m.label}
+              >
+                {m.icon}
+              </button>
+            ))}
           </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-[10px] text-white font-bold uppercase">Focus Sessions</div>
-              <div className="text-[8px] text-[#444] font-bold uppercase">Pomodoro Units</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <button onClick={() => handleUpdate('focusSessions', Math.max(0, data.focusSessions - 1))} className="btn-terminal p-1 px-3">-</button>
-              <span className="font-black text-xl text-[#00FF99]">{data.focusSessions.toString().padStart(2, '0')}</span>
-              <button onClick={() => handleUpdate('focusSessions', data.focusSessions + 1)} className="btn-terminal p-1 px-3">+</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MOOD & NOTES */}
-      <section className="col-span-12 hud-panel">
-        <div className="hud-header">
-          <div className="hud-title">Psychological State & Log</div>
-        </div>
-        <div className="hud-content grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <label className="text-[8px] text-[#444] font-bold uppercase block mb-4">Select Current State</label>
-            <div className="grid grid-cols-2 gap-2">
-              {moods.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => handleUpdate('mood', m)}
-                  className={`py-2 px-3 text-[10px] font-bold uppercase border transition-all ${
-                    data.mood === m 
-                    ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/10 shadow-[0_0_10px_rgba(0,255,153,0.2)]' 
-                    : 'border-[#1A1A1A] text-[#333] hover:border-[#444]'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="text-[8px] text-[#444] font-bold uppercase block mb-4">Neural Buffer (Daily Note)</label>
+          <div className="mt-8">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Daily Buffer</h3>
             <textarea
-              className="w-full text-[10px] font-bold min-h-[100px] resize-none"
-              placeholder="ENTER SYSTEM LOG..."
+              className="w-full bg-transparent border-none p-0 text-sm focus:ring-0 min-h-[80px] resize-none"
+              placeholder="What's in your head today?"
               maxLength={500}
               value={data.dailyNote}
               onChange={(e) => handleUpdate('dailyNote', e.target.value)}
             />
-            <div className="text-right text-[8px] text-[#333] font-bold mt-1 tracking-widest">{data.dailyNote.length}/500_CHARS</div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 };

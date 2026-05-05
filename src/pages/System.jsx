@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sunrise, BookOpen, Sunset, CheckCircle2, Shield, Radio, Activity } from 'lucide-react';
+import { Sunrise, BookOpen, Sunset, Shield, Radio, Activity, CheckCircle } from 'lucide-react';
 
 const System = ({ data, update }) => {
   const handleUpdate = (block, field, value) => {
@@ -10,149 +10,171 @@ const System = ({ data, update }) => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* MORNING BLOCK */}
-      <section className="hud-panel">
-        <div className="hud-header">
-          <div className="hud-title"><Sunrise size={12} /> AM_PROTOCOL / INITIALIZATION</div>
-          <div className="text-[8px] text-[#444] font-bold">MODE: BOOT_UP</div>
-        </div>
-        <div className="hud-content">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <label className="text-[8px] text-[#444] font-bold uppercase mb-2 block tracking-widest">Wake Time [UTC]</label>
-              <input 
-                type="time" 
-                className="w-full text-lg font-black" 
-                value={data.morning.wakeTime}
-                onChange={(e) => handleUpdate('morning', 'wakeTime', e.target.value)}
-              />
+    <div className="space-y-12">
+      <header>
+        <h2 className="text-3xl font-bold">Protocol Engine</h2>
+        <p className="text-secondary text-sm">Defining the daily operational parameters for peak performance.</p>
+      </header>
+
+      <div className="grid-cols">
+        {/* MORNING PROTOCOL */}
+        <section className="glass-panel p-8 space-y-8">
+          <div className="flex items-center gap-3">
+            <Sunrise className="text-[#00FF99]" size={20} />
+            <h3 className="text-sm font-bold uppercase tracking-widest">AM_PROTOCOL / Initialization</h3>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-end border-b border-white/5 pb-4">
+              <div>
+                <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-2">Wake Time</label>
+                <input 
+                  type="time" 
+                  className="bg-transparent border-none p-0 text-3xl font-black text-[#00FF99]" 
+                  value={data.morning.wakeTime}
+                  onChange={(e) => handleUpdate('morning', 'wakeTime', e.target.value)}
+                />
+              </div>
+              <div className="text-right">
+                <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-2">First Action</label>
+                <input 
+                  placeholder="Immediate directive..." 
+                  className="bg-transparent border-none p-0 text-sm font-bold text-white text-right focus:ring-0" 
+                  value={data.morning.firstAction}
+                  onChange={(e) => handleUpdate('morning', 'firstAction', e.target.value)}
+                />
+              </div>
             </div>
-            <div className="md:col-span-2">
-              <label className="text-[8px] text-[#444] font-bold uppercase mb-2 block tracking-widest">Immediate Vector (First Action)</label>
-              <input 
-                placeholder="ENTER FIRST ACTION..." 
-                className="w-full font-bold" 
-                value={data.morning.firstAction}
-                onChange={(e) => handleUpdate('morning', 'firstAction', e.target.value)}
-              />
-            </div>
-            <div className="flex items-center justify-between p-4 bg-black border border-[#1A1A1A] md:col-span-3">
+
+            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
               <div className="flex items-center gap-3">
-                <Radio size={14} className="text-[#00FF99]" />
-                <div>
-                  <div className="text-[10px] text-white font-bold uppercase">Signal Blockade (No Phone)</div>
-                  <div className="text-[8px] text-[#444] font-bold uppercase">First 60 Minutes of Cycle</div>
-                </div>
+                <Radio size={16} className="text-[#00FF99]" />
+                <span className="text-sm font-bold">Signal Blockade (No Phone)</span>
               </div>
               <button 
                 onClick={() => handleUpdate('morning', 'phoneUsage', !data.morning.phoneUsage)}
-                className={`w-12 h-6 border transition-all relative ${data.morning.phoneUsage ? 'bg-[#00FF99]/20 border-[#00FF99]' : 'bg-black border-[#333]'}`}
+                className={`w-12 h-6 rounded-full transition-all relative ${data.morning.phoneUsage ? 'bg-[#00FF99]' : 'bg-white/10'}`}
               >
-                <div className={`absolute top-1 w-3 h-3 transition-all ${data.morning.phoneUsage ? 'right-1 bg-[#00FF99]' : 'left-1 bg-[#333]'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${data.morning.phoneUsage ? 'right-1' : 'left-1'}`} />
               </button>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* STUDY STRUCTURE */}
-      <section className="hud-panel">
-        <div className="hud-header">
-          <div className="hud-title"><BookOpen size={12} /> COGNITIVE_LOAD / ENGINE</div>
-          <div className="text-[8px] text-[#444] font-bold">STATUS: OPERATIONAL</div>
-        </div>
-        <div className="hud-content">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div>
-              <label className="text-[8px] text-[#444] font-bold uppercase mb-4 block tracking-widest">Cycle Duration</label>
-              <div className="space-y-2">
-                {[25, 45, 60].map(m => (
-                  <button 
-                    key={m}
-                    onClick={() => handleUpdate('study', 'sessionLength', m)}
-                    className={`w-full py-2 border text-[10px] font-black tracking-widest ${data.study.sessionLength === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/10 shadow-[0_0_10px_rgba(0,255,153,0.1)]' : 'border-[#1A1A1A] text-[#333] hover:border-[#444]'}`}
-                  >
-                    {m} MINUTES
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-[8px] text-[#444] font-bold uppercase mb-4 block tracking-widest">Cool-Down Period</label>
-              <div className="space-y-2">
-                {[5, 10, 15].map(m => (
-                  <button 
-                    key={m}
-                    onClick={() => handleUpdate('study', 'breakDuration', m)}
-                    className={`w-full py-2 border text-[10px] font-black tracking-widest ${data.study.breakDuration === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/10 shadow-[0_0_10px_rgba(0,255,153,0.1)]' : 'border-[#1A1A1A] text-[#333] hover:border-[#444]'}`}
-                  >
-                    {m} MINUTES
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-[8px] text-[#444] font-bold uppercase mb-4 block tracking-widest">Total Daily Units</label>
-              <div className="p-6 bg-black border border-[#1A1A1A] text-center">
-                <input 
-                  type="number" 
-                  className="w-full bg-transparent border-none text-4xl font-black text-center focus:ring-0" 
-                  value={data.study.sessionsPerDay}
-                  onChange={(e) => handleUpdate('study', 'sessionsPerDay', parseInt(e.target.value) || 0)}
-                />
-                <div className="text-[8px] text-[#444] font-bold uppercase mt-2 tracking-[0.3em]">Sessions_Target</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* NIGHT BLOCK */}
-      <section className="hud-panel">
-        <div className="hud-header">
-          <div className="hud-title"><Sunset size={12} /> PM_PROTOCOL / DEBRIEF</div>
-          <div className="text-[8px] text-[#444] font-bold">MODE: SHUT_DOWN</div>
-        </div>
-        <div className="hud-content space-y-8">
-          <div>
-            <label className="text-[8px] text-[#444] font-bold uppercase mb-2 block tracking-widest">Mission Reflection (Debrief)</label>
-            <textarea 
-              className="w-full bg-black border-[#1A1A1A] p-4 min-h-[120px] text-[10px] font-bold"
-              placeholder="ENTER DAILY DEBRIEF..."
-              value={data.night.reflection}
-              onChange={(e) => handleUpdate('night', 'reflection', e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="text-[8px] text-[#444] font-bold uppercase mb-4 block tracking-widest">Future Vector (Next Cycle Plans)</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="flex gap-2">
-                  <div className="text-[10px] font-black text-[#00FF99] pt-2">0{i+1}.</div>
-                  <input 
-                    placeholder={`PLAN_${i+1}`}
-                    className="w-full font-bold"
-                    value={data.night.tomorrowPlan[i] || ''}
-                    onChange={(e) => {
-                      const plan = [...data.night.tomorrowPlan];
-                      plan[i] = e.target.value;
-                      handleUpdate('night', 'tomorrowPlan', plan);
-                    }}
-                  />
+            <div className="space-y-3">
+              <h4 className="text-[10px] text-secondary uppercase font-bold tracking-widest">Core Checklist</h4>
+              {['Drink 500ml Water', 'Sunlight exposure', 'Cold exposure', 'Movement'].map((step, i) => (
+                <div key={i} className="flex items-center gap-3 text-xs font-bold text-white/40">
+                  <div className="w-2 h-2 rounded-full border border-white/20" />
+                  <span>{step}</span>
                 </div>
               ))}
             </div>
           </div>
-          <button 
-            onClick={() => handleUpdate('night', 'streakConfirmed', !data.night.streakConfirmed)}
-            className={`w-full py-6 border-2 font-black tracking-[0.5em] transition-all flex items-center justify-center gap-4 ${data.night.streakConfirmed ? 'bg-[#00FF99] border-[#00FF99] text-black shadow-[0_0_30px_rgba(0,255,153,0.3)]' : 'bg-black border-[#1A1A1A] text-[#222] hover:text-[#444] hover:border-[#333]'}`}
-          >
-            {data.night.streakConfirmed ? <Activity size={24} /> : null}
-            {data.night.streakConfirmed ? 'CYCLE_SUCCESS_CONFIRMED' : 'CONFIRM_CYCLE_SUCCESS'}
-          </button>
-        </div>
-      </section>
+        </section>
+
+        {/* COGNITIVE SYSTEM */}
+        <section className="glass-panel p-8 space-y-8">
+          <div className="flex items-center gap-3">
+            <BookOpen className="text-[#00FF99]" size={20} />
+            <h3 className="text-sm font-bold uppercase tracking-widest">Cognitive Load System</h3>
+          </div>
+
+          <div className="space-y-10">
+            <div>
+              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-4">Focus Duration</label>
+              <div className="flex justify-between">
+                {[25, 45, 60].map(m => (
+                  <button 
+                    key={m}
+                    onClick={() => handleUpdate('study', 'sessionLength', m)}
+                    className={`px-6 py-2 rounded-xl border text-sm font-bold transition-all ${data.study.sessionLength === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/5' : 'border-white/5 text-secondary hover:border-white/20'}`}
+                  >
+                    {m}m
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-4">Break Parameters</label>
+              <div className="flex justify-between">
+                {[5, 10, 15].map(m => (
+                  <button 
+                    key={m}
+                    onClick={() => handleUpdate('study', 'breakDuration', m)}
+                    className={`px-6 py-2 rounded-xl border text-sm font-bold transition-all ${data.study.breakDuration === m ? 'border-[#00FF99] text-[#00FF99] bg-[#00FF99]/5' : 'border-white/5 text-secondary hover:border-white/20'}`}
+                  >
+                    {m}m
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center p-6 bg-white/5 rounded-3xl">
+              <div>
+                <div className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">Target Intensity</div>
+                <div className="text-lg font-bold">{data.study.sessionsPerDay} Units / Day</div>
+              </div>
+              <input 
+                type="range" 
+                min="1" 
+                max="12" 
+                className="w-32 accent-[#00FF99]"
+                value={data.study.sessionsPerDay}
+                onChange={(e) => handleUpdate('study', 'sessionsPerDay', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* NIGHT PROTOCOL */}
+        <section className="glass-panel p-8 space-y-8">
+          <div className="flex items-center gap-3">
+            <Sunset className="text-[#00FF99]" size={20} />
+            <h3 className="text-sm font-bold uppercase tracking-widest">PM_PROTOCOL / Termination</h3>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-3">Daily Reflection (Debrief)</label>
+              <textarea 
+                className="w-full bg-white/5 border border-white/5 p-4 rounded-2xl min-h-[100px] text-sm focus:ring-1 focus:ring-[#00FF99] transition-all"
+                placeholder="What was learned in this cycle?"
+                value={data.night.reflection}
+                onChange={(e) => handleUpdate('night', 'reflection', e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] text-secondary uppercase font-bold tracking-widest block mb-3">Next Cycle Vector (3 Max)</label>
+              <div className="space-y-2">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="flex gap-3 items-center">
+                    <span className="text-[10px] font-bold text-[#00FF99] opacity-50">0{i+1}</span>
+                    <input 
+                      placeholder={`Tomorrow Plan ${i+1}`}
+                      className="w-full bg-transparent border-none p-0 text-sm font-bold focus:ring-0"
+                      value={data.night.tomorrowPlan[i] || ''}
+                      onChange={(e) => {
+                        const plan = [...data.night.tomorrowPlan];
+                        plan[i] = e.target.value;
+                        handleUpdate('night', 'tomorrowPlan', plan);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button 
+              onClick={() => handleUpdate('night', 'streakConfirmed', !data.night.streakConfirmed)}
+              className={`w-full py-4 rounded-2xl font-bold text-sm tracking-widest transition-all flex items-center justify-center gap-3 ${data.night.streakConfirmed ? 'bg-[#00FF99] text-black shadow-[0_0_20px_rgba(0,255,153,0.3)]' : 'bg-white/5 text-secondary hover:bg-white/10'}`}
+            >
+              {data.night.streakConfirmed && <CheckCircle size={18} />}
+              {data.night.streakConfirmed ? 'CYCLE CONFIRMED' : 'INITIALIZE TERMINATION'}
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
