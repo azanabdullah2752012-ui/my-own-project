@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Brain, CheckCircle2, Circle, Zap, Activity, Shield, Clock } from 'lucide-react';
+import { Plus, Trash2, Zap, Clock, Brain, MessageSquare } from 'lucide-react';
 
 const Dashboard = ({ data, update }) => {
   const [newTask, setNewTask] = useState('');
@@ -20,146 +20,92 @@ const Dashboard = ({ data, update }) => {
     handleUpdate('secondaryTasks', tasks);
   };
 
-  const removeTask = (id) => {
-    const tasks = data.secondaryTasks.filter(t => t.id !== id);
-    handleUpdate('secondaryTasks', tasks);
-  };
-
-  const moods = [
-    { label: 'Focused', icon: '🧠' },
-    { label: 'Normal', icon: '😐' },
-    { label: 'Tired', icon: '😴' },
-    { label: 'Distracted', icon: '⚡' }
-  ];
-
   return (
-    <div className="space-y-8">
-      {/* HEADER */}
-      <header className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold">Command Center</h2>
-          <p className="text-secondary text-sm">System operational. All modules active.</p>
-        </div>
-        <div className="flex gap-4">
-          <div className="glass-panel px-4 py-2 flex items-center gap-3">
-            <Clock size={16} className="text-secondary" />
-            <span className="text-sm font-bold">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-        </div>
-      </header>
-
-      {/* TODAY'S MISSION */}
-      <section className="glass-panel p-8 border-l-4 border-[#00FF99]">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap size={14} className="text-[#00FF99]" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00FF99]">Today's Main Mission</span>
-        </div>
+    <div className="flex-grow flex flex-col items-center justify-center fade-in overflow-hidden">
+      
+      {/* LAYER 1: CORE FOCUS */}
+      <section className="layer-1 w-full">
+        <div className="mission-label">Primary Directive</div>
         <input
           type="text"
           maxLength={120}
-          placeholder="What is your primary focus today?"
-          className="w-full text-4xl font-bold bg-transparent border-none p-0 focus:ring-0 placeholder:text-white/10"
+          placeholder="ENTER MAIN MISSION..."
+          className="mission-input"
           value={data.mainMission}
           onChange={(e) => handleUpdate('mainMission', e.target.value)}
         />
       </section>
 
-      <div className="grid-cols">
-        {/* TASK LIST */}
-        <section className="glass-panel p-6 flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold uppercase tracking-widest">Execution List</h3>
-            <span className="text-[10px] font-bold text-secondary">{data.secondaryTasks.filter(t => t.done).length}/{data.secondaryTasks.length}</span>
+      {/* LAYER 2: SUPPORT SYSTEM */}
+      <section className="layer-2 w-full space-y-12">
+        {/* Support Stats Line */}
+        <div className="flex justify-center gap-12 text-[10px] font-black tracking-[0.3em] text-[#333]">
+          <div className="flex items-center gap-3 group">
+            <span className="group-hover:text-[#00FF99] transition-colors">STREAK</span>
+            <span className="streak-badge">{data.streak}</span>
           </div>
-          <div className="space-y-3 flex-grow">
-            {data.secondaryTasks.map((task) => (
-              <div key={task.id} className="flex items-center justify-between group">
-                <button onClick={() => toggleTask(task.id)} className="flex items-center gap-3 flex-grow text-left">
-                  {task.done ? <CheckCircle2 size={18} className="text-[#00FF99]" /> : <Circle size={18} className="text-white/20" />}
-                  <span className={`text-sm ${task.done ? 'line-through text-secondary' : 'text-white'}`}>{task.title}</span>
-                </button>
-                <button onClick={() => removeTask(task.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-500 transition-opacity">
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
-            {data.secondaryTasks.length < 5 && (
-              <div className="flex gap-2 mt-4 pt-4 border-t border-white/5">
-                <input
-                  type="text"
-                  placeholder="Add secondary task..."
-                  className="flex-grow bg-transparent border-none p-0 text-sm focus:ring-0"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                />
-                <button onClick={addTask} className="text-[#00FF99]"><Plus size={18} /></button>
-              </div>
-            )}
+          <div className="flex items-center gap-3 group">
+            <span className="group-hover:text-[#00FF99] transition-colors">FOCUS</span>
+            <span className="text-white font-black text-lg">{data.studyHours}h <span className="text-[#222]">{data.focusSessions}s</span></span>
           </div>
-        </section>
+        </div>
 
-        {/* STATS */}
-        <section className="glass-panel p-6">
-          <h3 className="text-sm font-bold uppercase tracking-widest mb-6">Core Metrics</h3>
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/5 rounded-lg"><Activity size={16} className="text-[#00FF99]" /></div>
-                <span className="text-sm font-medium text-secondary">Study Hours</span>
-              </div>
+        {/* Compact Tasks */}
+        <div className="space-y-2 max-w-sm mx-auto">
+          {data.secondaryTasks.map((task) => (
+            <button
+              key={task.id}
+              onClick={() => toggleTask(task.id)}
+              className={`list-item w-full ${task.done ? 'done' : ''}`}
+            >
+              <div className={`w-1.5 h-1.5 rounded-full ${task.done ? 'bg-[#222]' : 'bg-[#00FF99]'}`} />
+              <span className="tracking-wide text-xs font-bold uppercase">{task.title}</span>
+            </button>
+          ))}
+          {data.secondaryTasks.length < 5 && (
+            <div className="flex items-center gap-3 pt-4 opacity-10 focus-within:opacity-100 transition-opacity">
+              <Plus size={12} className="text-white" />
               <input
-                type="number"
-                className="w-16 bg-transparent border-none text-right font-bold text-lg p-0"
-                value={data.studyHours}
-                onChange={(e) => handleUpdate('studyHours', parseFloat(e.target.value) || 0)}
+                placeholder="SUB_TASK..."
+                className="text-[10px] font-bold uppercase tracking-widest w-full"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addTask()}
               />
             </div>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/5 rounded-lg"><Brain size={16} className="text-[#00FF99]" /></div>
-                <span className="text-sm font-medium text-secondary">Focus Sessions</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button onClick={() => handleUpdate('focusSessions', Math.max(0, data.focusSessions - 1))} className="text-secondary">-</button>
-                <span className="font-bold">{data.focusSessions}</span>
-                <button onClick={() => handleUpdate('focusSessions', data.focusSessions + 1)} className="text-[#00FF99]">+</button>
-              </div>
-            </div>
-            <div className="pt-6 border-t border-white/5 flex justify-between items-center">
-              <span className="text-sm font-medium text-secondary">Current Streak</span>
-              <div className="badge badge-green">{data.streak} DAYS</div>
-            </div>
-          </div>
-        </section>
+          )}
+        </div>
+      </section>
 
-        {/* MOOD */}
-        <section className="glass-panel p-6">
-          <h3 className="text-sm font-bold uppercase tracking-widest mb-6">Current State</h3>
-          <div className="flex justify-between">
-            {moods.map((m) => (
-              <button
-                key={m.label}
-                onClick={() => handleUpdate('mood', m.label)}
-                className={`mood-icon ${data.mood === m.label ? 'active' : ''}`}
-                title={m.label}
-              >
-                {m.icon}
-              </button>
+      {/* LAYER 3: AMBIENT SYSTEM */}
+      <section className="layer-3">
+        <div className="ambient-data group cursor-pointer">
+          <Brain size={12} />
+          <span>{data.mood || 'STABLE'}</span>
+          <div className="absolute bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-all bg-black p-4 border border-white/5 space-x-4 flex">
+            {['Focused', 'Normal', 'Tired', 'Distracted'].map(m => (
+              <button key={m} onClick={() => handleUpdate('mood', m)} className={`text-[8px] font-black ${data.mood === m ? 'text-[#00FF99]' : 'text-[#444]'}`}>{m.toUpperCase()}</button>
             ))}
           </div>
-          <div className="mt-8">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Daily Buffer</h3>
+        </div>
+        <div className="ambient-data group cursor-pointer max-w-[200px] truncate">
+          <MessageSquare size={12} />
+          <span>{data.dailyNote || 'NO LOGS'}</span>
+          <div className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-80 opacity-0 group-hover:opacity-100 transition-all bg-black p-6 border border-white/5">
             <textarea
-              className="w-full bg-transparent border-none p-0 text-sm focus:ring-0 min-h-[80px] resize-none"
-              placeholder="What's in your head today?"
-              maxLength={500}
+              className="w-full h-32 text-[10px] font-bold uppercase tracking-widest text-[#666] leading-relaxed"
               value={data.dailyNote}
               onChange={(e) => handleUpdate('dailyNote', e.target.value)}
+              placeholder="ENTER SYSTEM LOG..."
             />
           </div>
-        </section>
-      </div>
+        </div>
+        <div className="ambient-data">
+          <Clock size={12} />
+          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+      </section>
+
     </div>
   );
 };
