@@ -180,5 +180,20 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb { background: var(--accent-color); }
 
 /* Legacy support/overrides */
-.card { @apply hud-panel; }
-.btn-primary { @apply btn-terminal; }
+.card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  position: relative;
+  border-radius: 0;
+}
+
+.btn-primary {
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  font-weight: bold;
+  background: rgba(0, 255, 153, 0.05);
+  transition: all 0.2s;
+}
