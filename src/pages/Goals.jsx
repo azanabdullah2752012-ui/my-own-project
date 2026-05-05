@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Calendar, Target, TrendingUp, Trophy } from 'lucide-react';
+import { Plus, Trash2, Calendar, Target, TrendingUp, Trophy, ChevronRight } from 'lucide-react';
 
 const Goals = ({ data, update }) => {
   const [newShortGoal, setNewShortGoal] = useState('');
@@ -36,7 +36,7 @@ const Goals = ({ data, update }) => {
   const addMidGoal = () => {
     const newGoal = {
       id: crypto.randomUUID(),
-      title: 'New Mid Term Goal',
+      title: 'NEW_MISSION_OBJECTIVE',
       category: 'personal',
       progress: 0,
       nextAction: ''
@@ -71,46 +71,43 @@ const Goals = ({ data, update }) => {
   return (
     <div className="space-y-12">
       {/* SHORT TERM */}
-      <section>
-        <div className="flex items-center gap-3 mb-6">
-          <Calendar className="text-[#00FF99]" size={24} />
-          <h2 className="text-xl font-bold">SHORT TERM (0–7 days)</h2>
+      <section className="hud-panel">
+        <div className="hud-header">
+          <div className="hud-title"><Calendar size={12} /> Tactical Objectives (0–7 Days)</div>
         </div>
-        <div className="card space-y-4">
-          <div className="flex gap-4 mb-6">
+        <div className="hud-content">
+          <div className="flex gap-2 mb-8">
             <input 
-              placeholder="Goal title..." 
-              className="flex-grow" 
+              placeholder="ENTER SHORT-TERM GOAL..." 
+              className="flex-grow text-[10px] font-bold" 
               value={newShortGoal}
               onChange={(e) => setNewShortGoal(e.target.value)}
             />
             <input 
               type="date" 
-              className="w-48" 
+              className="w-40 text-[10px] font-bold" 
               value={newShortDeadline}
               onChange={(e) => setNewShortDeadline(e.target.value)}
             />
-            <button onClick={addShortGoal} className="btn-primary flex items-center gap-2 px-6">
-              <Plus size={20} /> Add
-            </button>
+            <button onClick={addShortGoal} className="btn-terminal px-6">ADD_OBJECTIVE</button>
           </div>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {data.shortTerm.map(goal => (
-              <div key={goal.id} className="flex items-center justify-between p-3 bg-[#1A1A1A] rounded-xl border border-[#333] group">
+              <div key={goal.id} className="flex items-center justify-between p-3 border border-[#1A1A1A] bg-black group hover:border-[#00FF99]/30 transition-all">
                 <div className="flex items-center gap-4">
-                  <input 
-                    type="checkbox" 
-                    checked={goal.done} 
-                    onChange={() => toggleShortGoal(goal.id)}
-                    className="w-5 h-5 accent-[#00FF99]"
-                  />
+                  <div 
+                    onClick={() => toggleShortGoal(goal.id)}
+                    className={`w-4 h-4 border flex items-center justify-center cursor-pointer ${goal.done ? 'bg-[#00FF99] border-[#00FF99]' : 'border-[#333]'}`}
+                  >
+                    {goal.done && <ChevronRight size={12} className="text-black" />}
+                  </div>
                   <div>
-                    <div className={goal.done ? 'line-through text-secondary' : 'text-white font-medium'}>{goal.title}</div>
-                    {goal.deadline && <div className="text-[10px] text-secondary uppercase">Deadline: {goal.deadline}</div>}
+                    <div className={`text-[10px] font-bold uppercase tracking-wider ${goal.done ? 'text-[#333] line-through' : 'text-white'}`}>{goal.title}</div>
+                    {goal.deadline && <div className="text-[8px] text-[#444] font-bold mt-0.5">ETA: {goal.deadline}</div>}
                   </div>
                 </div>
                 <button onClick={() => removeShortGoal(goal.id)} className="opacity-0 group-hover:opacity-100 text-[#333] hover:text-red-500 transition-all">
-                  <Trash2 size={18} />
+                  <Trash2 size={14} />
                 </button>
               </div>
             ))}
@@ -119,104 +116,97 @@ const Goals = ({ data, update }) => {
       </section>
 
       {/* MID TERM */}
-      <section>
-        <div className="flex items-center gap-3 mb-6">
-          <TrendingUp className="text-[#00FF99]" size={24} />
-          <h2 className="text-xl font-bold">MID TERM (1–12 months)</h2>
+      <section className="hud-panel">
+        <div className="hud-header">
+          <div className="hud-title"><TrendingUp size={12} /> Strategic Operations (1–12 Months)</div>
+          <button onClick={addMidGoal} className="text-[8px] text-[#00FF99] font-bold hover:underline">+ NEW_DEPLOYMENT</button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="hud-content grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.midTerm.map(goal => (
-            <div key={goal.id} className="card border-l-2 border-[#00FF99] space-y-4">
+            <div key={goal.id} className="p-4 border border-[#1A1A1A] bg-black space-y-4">
               <div className="flex justify-between items-start">
                 <input 
-                  className="bg-transparent border-none p-0 text-lg font-bold w-full focus:ring-0" 
+                  className="bg-transparent border-none p-0 text-xs font-black w-full focus:ring-0 text-[#00FF99]" 
                   value={goal.title}
                   onChange={(e) => updateMidGoal(goal.id, 'title', e.target.value)}
                 />
                 <button onClick={() => removeMidGoal(goal.id)} className="text-[#333] hover:text-red-500">
-                  <Trash2 size={18} />
+                  <Trash2 size={14} />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] text-secondary uppercase block mb-1">Category</label>
+                  <label className="text-[8px] text-[#444] font-bold uppercase block mb-1">Sector</label>
                   <select 
-                    className="w-full text-xs p-2" 
+                    className="w-full text-[8px] p-1 font-bold" 
                     value={goal.category}
                     onChange={(e) => updateMidGoal(goal.id, 'category', e.target.value)}
                   >
-                    <option value="academics">Academics</option>
-                    <option value="coding">Coding</option>
-                    <option value="fitness">Fitness</option>
-                    <option value="personal">Personal</option>
+                    <option value="academics">ACADEMICS</option>
+                    <option value="coding">CODING</option>
+                    <option value="fitness">FITNESS</option>
+                    <option value="personal">PERSONAL</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] text-secondary uppercase block mb-1">Progress: {goal.progress}%</label>
+                  <label className="text-[8px] text-[#444] font-bold uppercase block mb-1">Completion: {goal.progress}%</label>
+                  <div className="h-1 bg-[#1A1A1A] w-full mb-1">
+                    <div className="h-full bg-[#00FF99]" style={{ width: `${goal.progress}%` }} />
+                  </div>
                   <input 
                     type="range" 
-                    className="w-full accent-[#00FF99]" 
+                    className="w-full accent-[#00FF99] h-1" 
                     value={goal.progress}
                     onChange={(e) => updateMidGoal(goal.id, 'progress', parseInt(e.target.value))}
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-secondary uppercase block mb-1">Next Action</label>
+                <label className="text-[8px] text-[#444] font-bold uppercase block mb-1">Next Vector</label>
                 <input 
-                  placeholder="What is the next step?" 
-                  className="w-full text-xs" 
+                  placeholder="NEXT ACTION..." 
+                  className="w-full text-[10px] font-bold" 
                   value={goal.nextAction}
                   onChange={(e) => updateMidGoal(goal.id, 'nextAction', e.target.value)}
                 />
               </div>
             </div>
           ))}
-          <button 
-            onClick={addMidGoal}
-            className="border-2 border-dashed border-[#333] rounded-xl flex flex-col items-center justify-center p-8 text-secondary hover:border-[#00FF99] hover:text-[#00FF99] transition-all"
-          >
-            <Plus size={32} className="mb-2" />
-            <span className="font-bold">Add Mid-Term Goal</span>
-          </button>
         </div>
       </section>
 
       {/* LONG TERM */}
-      <section>
-        <div className="flex items-center gap-3 mb-6">
-          <Trophy className="text-[#00FF99]" size={24} />
-          <h2 className="text-xl font-bold">LONG TERM (1–10 years)</h2>
+      <section className="hud-panel">
+        <div className="hud-header">
+          <div className="hud-title"><Trophy size={12} /> Ultimate Vision (End Game)</div>
         </div>
-        <div className="card space-y-6">
+        <div className="hud-content space-y-8">
           <div>
-            <label className="text-secondary uppercase text-xs font-bold tracking-widest mb-2 block">Vision Statement</label>
+            <label className="text-[8px] text-[#444] font-bold uppercase block mb-2">Grand Strategy / Vision Statement</label>
             <textarea 
-              className="w-full bg-[#1A1A1A] border-[#333] p-4 rounded-xl text-lg font-medium"
-              placeholder="What is your ultimate vision?"
+              className="w-full bg-black border-[#1A1A1A] p-4 text-lg font-black text-white italic"
+              placeholder="ENTER THE VISION..."
               value={data.longTerm.vision}
               onChange={(e) => updateLongTerm('vision', e.target.value)}
             />
           </div>
           <div>
             <div className="flex justify-between items-center mb-4">
-              <label className="text-secondary uppercase text-xs font-bold tracking-widest">Milestones</label>
-              <button onClick={addMilestone} className="text-xs text-[#00FF99] hover:underline flex items-center gap-1">
-                <Plus size={14} /> Add Milestone
-              </button>
+              <label className="text-[8px] text-[#444] font-bold uppercase">Critical Milestones</label>
+              <button onClick={addMilestone} className="text-[8px] text-[#00FF99] font-bold hover:underline">+ ADD_MILESTONE</button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {data.longTerm.milestones.map(m => (
                 <div key={m.id} className="flex gap-4 items-center">
+                  <div 
+                    onClick={() => updateMilestone(m.id, 'done', !m.done)}
+                    className={`w-4 h-4 border flex items-center justify-center cursor-pointer ${m.done ? 'bg-[#00FF99] border-[#00FF99]' : 'border-[#333]'}`}
+                  >
+                    {m.done && <ChevronRight size={12} className="text-black" />}
+                  </div>
                   <input 
-                    type="checkbox" 
-                    checked={m.done} 
-                    onChange={() => updateMilestone(m.id, 'done', !m.done)}
-                    className="w-5 h-5 accent-[#00FF99]"
-                  />
-                  <input 
-                    placeholder="Describe milestone..." 
-                    className="flex-grow bg-transparent border-b border-[#333] rounded-none focus:border-[#00FF99] p-1"
+                    placeholder="ENTER MILESTONE..." 
+                    className="flex-grow bg-transparent border-none border-b border-[#1A1A1A] rounded-none focus:border-[#00FF99] p-0 text-[10px] font-bold"
                     value={m.title}
                     onChange={(e) => updateMilestone(m.id, 'title', e.target.value)}
                   />
