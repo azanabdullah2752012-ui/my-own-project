@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, ClipboardList, TrendingUp } from 'lucide-react';
+import { BarChart3, ClipboardList, TrendingUp, Activity, Target, Zap, Shield } from 'lucide-react';
 
 const Progress = ({ data, update }) => {
   const [newReview, setNewReview] = useState({
@@ -25,87 +25,112 @@ const Progress = ({ data, update }) => {
   return (
     <div className="space-y-12">
       {/* WEEKLY METRICS */}
-      <section>
-        <div className="flex items-center gap-3 mb-6">
-          <BarChart3 className="text-[#00FF99]" size={24} />
-          <h2 className="text-xl font-bold uppercase tracking-tight">Weekly Metrics</h2>
+      <section className="hud-panel">
+        <div className="hud-header">
+          <div className="hud-title"><BarChart3 size={12} /> ANALYTICS / OUTPUT_METRICS</div>
+          <div className="text-[8px] text-[#444] font-bold">INTERVAL: CURRENT_WEEK</div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {['Total Study Hours', 'Tasks Completed', 'Current Streak', 'Distractions'].map((label, i) => (
-            <div key={label} className="card text-center p-6 border-b-2 border-[#333] hover:border-[#00FF99] transition-colors">
-              <div className="text-secondary text-[10px] uppercase font-bold tracking-widest mb-2">{label}</div>
-              <div className="text-3xl font-black text-white">0</div>
-              <div className="text-[10px] text-secondary mt-1 uppercase">This Week</div>
+        <div className="hud-content">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-1">
+            {[
+              { label: 'COGNITIVE_HOURS', value: '00.0', icon: <Activity size={12} /> },
+              { label: 'OBJECTIVES_CLEARED', value: '00', icon: <Target size={12} /> },
+              { label: 'STREAK_STABILITY', value: '100%', icon: <Zap size={12} /> },
+              { label: 'SIGNAL_INTERFERENCE', value: 'LOW', icon: <Shield size={12} /> },
+            ].map((metric, i) => (
+              <div key={metric.label} className="p-6 bg-black border border-[#1A1A1A] hover:border-[#00FF99]/20 transition-all text-center">
+                <div className="flex justify-center mb-2 text-[#444]">{metric.icon}</div>
+                <div className="text-[8px] text-[#444] font-black uppercase tracking-[0.2em] mb-3">{metric.label}</div>
+                <div className="text-3xl font-black text-white">{metric.value}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 border border-[#1A1A1A] bg-black/50 h-48 flex items-center justify-center relative overflow-hidden">
+            {/* Visual background lines for "graph" feel */}
+            <div className="absolute inset-0 grid grid-cols-12 grid-rows-6 pointer-events-none opacity-5">
+              {Array.from({length: 72}).map((_, i) => (
+                <div key={i} className="border-[0.5px] border-white" />
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-8 glass p-8 h-64 flex items-center justify-center text-secondary border border-dashed border-[#333]">
-          <div className="text-center">
-            <TrendingUp size={48} className="mx-auto mb-4 opacity-20" />
-            <p>Metric visualization will populate as data accumulates.</p>
+            <div className="text-center relative z-10">
+              <TrendingUp size={32} className="mx-auto mb-4 text-[#1A1A1A]" />
+              <p className="text-[8px] text-[#222] font-black uppercase tracking-[0.4em]">Historical_Data_Insufficient / Pending_Input</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* WEEKLY REVIEW FORM */}
-      <section>
-        <div className="flex items-center gap-3 mb-6">
-          <ClipboardList className="text-[#00FF99]" size={24} />
-          <h2 className="text-xl font-bold uppercase tracking-tight">Weekly Review</h2>
+      {/* WEEKLY REVIEW */}
+      <section className="hud-panel">
+        <div className="hud-header">
+          <div className="hud-title"><ClipboardList size={12} /> DEBRIEF_MODULE / WEEKLY_REVIEW</div>
         </div>
-        <form onSubmit={handleReviewSubmit} className="card space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="text-xs text-secondary uppercase font-bold mb-2 block">What went well?</label>
-              <textarea 
-                className="w-full bg-[#1A1A1A] border-[#333] p-4 rounded-xl min-h-[100px]"
-                value={newReview.well}
-                onChange={(e) => setNewReview({...newReview, well: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-secondary uppercase font-bold mb-2 block">What failed?</label>
-              <textarea 
-                className="w-full bg-[#1A1A1A] border-[#333] p-4 rounded-xl min-h-[100px]"
-                value={newReview.failed}
-                onChange={(e) => setNewReview({...newReview, failed: e.target.value})}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-secondary uppercase font-bold mb-2 block">What to improve next week?</label>
-            <textarea 
-              className="w-full bg-[#1A1A1A] border-[#333] p-4 rounded-xl min-h-[100px]"
-              value={newReview.improve}
-              onChange={(e) => setNewReview({...newReview, improve: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center justify-between p-4 bg-[#1A1A1A] rounded-xl border border-[#333]">
-            <span className="font-bold">Weekly Performance Score: <span className="text-[#00FF99]">{newReview.score}/10</span></span>
-            <input 
-              type="range" 
-              min="1" 
-              max="10" 
-              className="w-48 accent-[#00FF99]"
-              value={newReview.score}
-              onChange={(e) => setNewReview({...newReview, score: parseInt(e.target.value)})}
-            />
-          </div>
-          <button type="submit" className="w-full btn-primary py-4 rounded-xl">
-            Save Weekly Review
-          </button>
-        </form>
-
-        <div className="mt-8 space-y-4">
-          {data.reviews.map((review, i) => (
-            <div key={i} className="card border-l-2 border-indigo-500 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs text-secondary">{new Date(review.date).toLocaleDateString()}</span>
-                <span className="bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full text-xs font-bold">Score: {review.score}</span>
+        <div className="hud-content">
+          <form onSubmit={handleReviewSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[8px] text-[#444] font-black uppercase tracking-widest block">Successes (What went well)</label>
+                <textarea 
+                  className="w-full bg-black border-[#1A1A1A] p-4 text-[10px] font-bold min-h-[100px]"
+                  value={newReview.well}
+                  onChange={(e) => setNewReview({...newReview, well: e.target.value})}
+                  placeholder="ENTER DATA..."
+                />
               </div>
-              <p className="text-sm line-clamp-1"><span className="text-secondary">Well:</span> {review.well}</p>
+              <div className="space-y-2">
+                <label className="text-[8px] text-[#444] font-black uppercase tracking-widest block">Failures (Root cause analysis)</label>
+                <textarea 
+                  className="w-full bg-black border-[#1A1A1A] p-4 text-[10px] font-bold min-h-[100px]"
+                  value={newReview.failed}
+                  onChange={(e) => setNewReview({...newReview, failed: e.target.value})}
+                  placeholder="ENTER DATA..."
+                />
+              </div>
             </div>
-          ))}
+            <div className="space-y-2">
+              <label className="text-[8px] text-[#444] font-black uppercase tracking-widest block">Optimization Vectors (Next Week)</label>
+              <textarea 
+                className="w-full bg-black border-[#1A1A1A] p-4 text-[10px] font-bold min-h-[100px]"
+                value={newReview.improve}
+                onChange={(e) => setNewReview({...newReview, improve: e.target.value})}
+                placeholder="ENTER DATA..."
+              />
+            </div>
+            
+            <div className="flex items-center justify-between p-6 bg-black border border-[#1A1A1A]">
+              <div>
+                <div className="text-[10px] text-white font-black uppercase">Core Output Score</div>
+                <div className="text-[8px] text-[#444] font-bold uppercase mt-1">Performance_Rating: {newReview.score}/10</div>
+              </div>
+              <input 
+                type="range" 
+                min="1" 
+                max="10" 
+                className="w-64 accent-[#00FF99]"
+                value={newReview.score}
+                onChange={(e) => setNewReview({...newReview, score: parseInt(e.target.value)})}
+              />
+            </div>
+            <button type="submit" className="w-full btn-terminal py-4 tracking-[0.5em]">
+              COMMIT_REVIEW_TO_ARCHIVE
+            </button>
+          </form>
+
+          {data.reviews.length > 0 && (
+            <div className="mt-12 space-y-2">
+              <label className="text-[8px] text-[#444] font-black uppercase tracking-widest block mb-4">Past_Review_Logs</label>
+              {data.reviews.map((review, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border border-[#1A1A1A] bg-black/50 group hover:border-[#00FF99]/20 transition-all">
+                  <div className="flex items-center gap-6">
+                    <span className="text-[10px] font-black text-[#444]">#{data.reviews.length - i}</span>
+                    <span className="text-[10px] font-black text-white">{new Date(review.date).toLocaleDateString()}</span>
+                    <span className="text-[10px] text-secondary truncate max-w-md hidden md:block italic">"{review.well}"</span>
+                  </div>
+                  <div className="px-3 py-1 border border-[#00FF99]/20 text-[#00FF99] text-[10px] font-black">SCORE: {review.score}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
