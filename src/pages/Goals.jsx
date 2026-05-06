@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Target, TrendingUp, Trophy, CheckCircle2, Circle, 
   ChevronRight, Plus, Trash2, X, Star, Flag, 
-  Compass, Zap, Briefcase, Heart, Sparkles 
+  Compass, Zap, Briefcase, Heart, Sparkles, Activity
 } from 'lucide-react';
 
 /* ── reusable modal ── */
@@ -18,8 +18,14 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
-const Goals = ({ data, update, setView }) => {
-  const goals = data ?? { shortTerm: [], midTerm: [], longTerm: { vision: '', milestones: [], values: [] } };
+const Goals = ({ data: rawData, update, setView }) => {
+  // Ensure we have all properties even if data is old
+  const goals = {
+    shortTerm: [],
+    midTerm: [],
+    longTerm: { vision: '', milestones: [], values: [] },
+    ...(rawData || {})
+  };
 
   const patch = (newGoals) => update(newGoals);
 
@@ -29,12 +35,12 @@ const Goals = ({ data, update, setView }) => {
 
   const addShort = () => {
     if (!shortForm.title.trim()) return;
-    patch({ ...goals, shortTerm: [...goals.shortTerm, { id: Date.now(), ...shortForm, done: false }] });
+    patch({ ...goals, shortTerm: [...(goals.shortTerm || []), { id: Date.now(), ...shortForm, done: false }] });
     setShortForm({ title:'', deadline:'', priority: 'Mid' });
     setShowShort(false);
   };
-  const toggleShort = (id) => patch({ ...goals, shortTerm: goals.shortTerm.map(g => g.id === id ? { ...g, done: !g.done } : g) });
-  const deleteShort = (id) => patch({ ...goals, shortTerm: goals.shortTerm.filter(g => g.id !== id) });
+  const toggleShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
+  const deleteShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).filter(g => g.id !== id) });
 
   // ── Mid Term ──
   const [showMid, setShowMid] = useState(false);
@@ -42,19 +48,18 @@ const Goals = ({ data, update, setView }) => {
 
   const addMid = () => {
     if (!midForm.title.trim()) return;
-    patch({ ...goals, midTerm: [...goals.midTerm, { id: Date.now(), ...midForm, progress: Number(midForm.progress) }] });
+    patch({ ...goals, midTerm: [...(goals.midTerm || []), { id: Date.now(), ...midForm, progress: Number(midForm.progress) }] });
     setMidForm({ title:'', progress:0, nextAction:'', category: 'General' });
     setShowMid(false);
   };
   const updateMidProgress = (id, progress) =>
-    patch({ ...goals, midTerm: goals.midTerm.map(g => g.id === id ? { ...g, progress: Number(progress) } : g) });
-  const deleteMid = (id) => patch({ ...goals, midTerm: goals.midTerm.filter(g => g.id !== id) });
+    patch({ ...goals, midTerm: (goals.midTerm || []).map(g => g.id === id ? { ...g, progress: Number(progress) } : g) });
+  const deleteMid = (id) => patch({ ...goals, midTerm: (goals.midTerm || []).filter(g => g.id !== id) });
 
   // ── Long Term ──
-  const patchLong = (field, val) => patch({ ...goals, longTerm: { ...goals.longTerm, [field]: val } });
+  const patchLong = (field, val) => patch({ ...goals, longTerm: { ...(goals.longTerm || {}), [field]: val } });
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneTitle, setMilestoneTitle] = useState('');
-  
   const [newValue, setNewValue] = useState('');
 
   const addValue = () => {
@@ -84,6 +89,13 @@ const Goals = ({ data, update, setView }) => {
     Career: { icon: <TrendingUp size={12} />, color: '#7B5BFB' }
   };
 
+  const shortTerm = goals.shortTerm || [];
+  const midTerm = goals.midTerm || [];
+  const longTerm = goals.longTerm || { vision: '', milestones: [], values: [] };
+
+  const tacticalAccuracy = Math.round((shortTerm.filter(g => g.done).length / (shortTerm.length || 1)) * 100);
+  const strategicMomentum = Math.round(midTerm.reduce((acc, g) => acc + (g.progress || 0), 0) / (midTerm.length || 1));
+
   return (
     <div className="fade-in">
       <div className="page-header" style={{ marginBottom: 24 }}>
@@ -94,20 +106,15 @@ const Goals = ({ data, update, setView }) => {
         <div style={{ display:'flex', gap:20 }}>
           <div style={{ textAlign:'right' }}>
             <div style={{ fontSize:10, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase' }}>Tactical Accuracy</div>
-            <div style={{ fontSize:24, fontWeight:900, color:'#34C759' }}>
-              {Math.round((goals.shortTerm.filter(g => g.done).length / (goals.shortTerm.length || 1)) * 100)}%
-            </div>
+            <div style={{ fontSize:24, fontWeight:900, color:'#34C759' }}>{tacticalAccuracy}%</div>
           </div>
           <div style={{ textAlign:'right' }}>
             <div style={{ fontSize:10, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase' }}>Strategic Momentum</div>
-            <div style={{ fontSize:24, fontWeight:900, color:'#4D7CFE' }}>
-              {Math.round(goals.midTerm.reduce((acc, g) => acc + g.progress, 0) / (goals.midTerm.length || 1))}%
-            </div>
+            <div style={{ fontSize:24, fontWeight:900, color:'#4D7CFE' }}>{strategicMomentum}%</div>
           </div>
         </div>
       </div>
 
-      {/* MONTHLY FOCUS SPOTLIGHT */}
       <div className="card" style={{ marginBottom: 24, background: 'linear-gradient(135deg, rgba(77,124,254,0.1) 0%, rgba(123,91,251,0.1) 100%)', border: '1px solid rgba(77,124,254,0.2)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div style={{ display:'flex', alignItems:'center', gap:20 }}>
           <div style={{ width:50, height:50, borderRadius:14, background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 16px rgba(77,124,254,0.3)' }}>
@@ -115,7 +122,7 @@ const Goals = ({ data, update, setView }) => {
           </div>
           <div>
             <div style={{ fontSize:11, fontWeight:800, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Current Monthly Focus</div>
-            <h2 style={{ fontSize:20, fontWeight:900, marginTop:4 }}>{goals.midTerm.find(g => g.progress < 100)?.title || 'Establish New Strategic Base'}</h2>
+            <h2 style={{ fontSize:20, fontWeight:900, marginTop:4 }}>{midTerm.find(g => g.progress < 100)?.title || 'Establish New Strategic Base'}</h2>
           </div>
         </div>
         <div style={{ textAlign:'right' }}>
@@ -125,7 +132,6 @@ const Goals = ({ data, update, setView }) => {
       </div>
 
       <div className="goals-grid">
-        {/* SHORT TERM */}
         <div className="card">
           <div className="section-header">
             <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
@@ -136,21 +142,17 @@ const Goals = ({ data, update, setView }) => {
             </button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {goals.shortTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No tactical goals.</div>}
-            {goals.shortTerm.map(g => (
+            {shortTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No tactical goals.</div>}
+            {shortTerm.map(g => (
               <div key={g.id} className="goal-item" style={{ borderLeft: `3px solid ${g.priority === 'High' ? '#FF3B30' : g.priority === 'Mid' ? '#FF9500' : '#34C759'}` }}>
                 <button onClick={() => toggleShort(g.id)} style={{ background:'none', border:'none', cursor:'pointer', flexShrink:0 }}>
                   {g.done ? <CheckCircle2 size={16} color="#34C759" /> : <Circle size={16} color="var(--text-dim)" />}
                 </button>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:600, textDecoration: g.done ? 'line-through' : 'none', color: g.done ? 'var(--text-dim)' : '#fff' }}>
-                    {g.title}
-                  </div>
+                  <div style={{ fontSize:13, fontWeight:600, textDecoration: g.done ? 'line-through' : 'none', color: g.done ? 'var(--text-dim)' : '#fff' }}>{g.title}</div>
                   <div style={{ display:'flex', gap:8, marginTop:4 }}>
                     {g.deadline && <span style={{ fontSize:10, color:'var(--text-dim)' }}>📅 {g.deadline}</span>}
-                    <span style={{ fontSize:10, fontWeight:700, color: g.priority === 'High' ? '#FF3B30' : 'var(--text-dim)' }}>
-                      [{g.priority.toUpperCase()}]
-                    </span>
+                    <span style={{ fontSize:10, fontWeight:700, color: g.priority === 'High' ? '#FF3B30' : 'var(--text-dim)' }}>[{String(g.priority || 'MID').toUpperCase()}]</span>
                   </div>
                 </div>
                 <button onClick={() => deleteShort(g.id)} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={13} /></button>
@@ -159,7 +161,6 @@ const Goals = ({ data, update, setView }) => {
           </div>
         </div>
 
-        {/* MID TERM */}
         <div className="card">
           <div className="section-header">
             <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
@@ -170,27 +171,27 @@ const Goals = ({ data, update, setView }) => {
             </button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            {goals.midTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No strategic goals.</div>}
-            {goals.midTerm.map(g => (
+            {midTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No strategic goals.</div>}
+            {midTerm.map(g => (
               <div key={g.id} style={{ background:'var(--bg-panel-hover)', padding:'14px', borderRadius:12, border:'1px solid var(--border)' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                   <div>
                     <div style={{ fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
-                      {categories[g.category]?.icon} {g.title}
+                      {categories[g.category || 'General']?.icon} {g.title}
                     </div>
-                    <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', marginTop:2, textTransform:'uppercase' }}>Category: {g.category}</div>
+                    <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', marginTop:2, textTransform:'uppercase' }}>Category: {g.category || 'General'}</div>
                   </div>
                   <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    <span style={{ fontSize:11, fontWeight:800, color:categories[g.category]?.color }}>{g.progress}%</span>
+                    <span style={{ fontSize:11, fontWeight:800, color:categories[g.category || 'General']?.color }}>{g.progress || 0}%</span>
                     <button onClick={() => deleteMid(g.id)} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={12} /></button>
                   </div>
                 </div>
-                <input type="range" min={0} max={100} value={g.progress}
+                <input type="range" min={0} max={100} value={g.progress || 0}
                   onChange={e => updateMidProgress(g.id, e.target.value)}
-                  style={{ width:'100%', accentColor: categories[g.category]?.color || '#4D7CFE' }} />
+                  style={{ width:'100%', accentColor: categories[g.category || 'General']?.color || '#4D7CFE' }} />
                 {g.nextAction && (
                   <div style={{ fontSize:11, color:'var(--text-secondary)', marginTop:8, display:'flex', alignItems:'center', gap:6, padding:'6px 8px', background:'rgba(255,255,255,0.03)', borderRadius:6 }}>
-                    <ChevronRight size={12} color={categories[g.category]?.color} /> {g.nextAction}
+                    <ChevronRight size={12} color={categories[g.category || 'General']?.color} /> {g.nextAction}
                   </div>
                 )}
               </div>
@@ -198,7 +199,6 @@ const Goals = ({ data, update, setView }) => {
           </div>
         </div>
 
-        {/* LONG TERM & VALUES */}
         <div className="card">
           <div className="section-header">
             <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
@@ -208,7 +208,7 @@ const Goals = ({ data, update, setView }) => {
           <div style={{ marginBottom:20 }}>
             <label style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', display:'block', marginBottom:8 }}>Core Values</label>
             <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:10 }}>
-              {(goals.longTerm?.values ?? []).map((v, i) => (
+              {(longTerm?.values || []).map((v, i) => (
                 <span key={i} style={{ fontSize:11, fontWeight:600, padding:'4px 10px', background:'rgba(77,124,254,0.1)', color:'#4D7CFE', borderRadius:20, display:'flex', alignItems:'center', gap:6 }}>
                   {v} <X size={10} style={{ cursor:'pointer' }} onClick={() => deleteValue(i)} />
                 </span>
@@ -220,31 +220,27 @@ const Goals = ({ data, update, setView }) => {
               <button onClick={addValue} style={{ background:'var(--accent)', border:'none', color:'#fff', padding:'0 8px', borderRadius:8 }}><Plus size={14} /></button>
             </div>
           </div>
-          
-          <label style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', display:'block', marginBottom:8 }}>Vision Statement</label>
           <textarea
-            value={goals.longTerm?.vision ?? ''}
+            value={longTerm?.vision ?? ''}
             onChange={e => patchLong('vision', e.target.value)}
             placeholder="Describe your ultimate life mission..."
             style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px', fontSize:13, color:'rgba(255,255,255,0.8)', marginBottom:16, resize:'none', minHeight:100, lineHeight:1.5 }}
           />
-
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
             <label style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase' }}>Major Milestones</label>
             <button onClick={() => setShowMilestone(true)} style={{ background:'none', border:'none', color:'var(--accent)', fontSize:11, fontWeight:700, cursor:'pointer' }}>+ Add</button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {(goals.longTerm?.milestones ?? []).map(m => (
+            {(longTerm?.milestones || []).map(m => (
               <div key={m.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:'var(--bg-panel-hover)', borderRadius:10 }}>
                 <span style={{ flex:1, fontSize:12, fontWeight:600 }}>{m.title}</span>
-                <button onClick={() => patchLong('milestones', goals.longTerm.milestones.filter(x => x.id !== m.id))} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={13} /></button>
+                <button onClick={() => patchLong('milestones', longTerm.milestones.filter(x => x.id !== m.id))} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={13} /></button>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* STRATEGY ROADMAP */}
       <div className="card" style={{ marginTop: 24 }}>
         <div className="section-header">
           <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
@@ -269,7 +265,6 @@ const Goals = ({ data, update, setView }) => {
         </div>
       </div>
 
-      {/* MODALS */}
       {showShort && (
         <Modal title="Tactical Goal" onClose={() => setShowShort(false)}>
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
