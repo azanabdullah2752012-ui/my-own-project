@@ -22,7 +22,10 @@ export const INITIAL_DATA = {
     morning: { wakeTime: '06:00', firstAction: '', phoneUsage: false },
     study: { sessionLength: 25, breakDuration: 5, sessionsPerDay: 4 },
     night: { reflection: '', tomorrowPlan: [], streakConfirmed: false },
-    prayers: {} // { [dateStr]: { fajr: bool, dhuhr: bool, asr: bool, maghrib: bool, isha: bool } }
+    prayers: {}, // { [dateStr]: { fajr: bool, dhuhr: bool, asr: bool, maghrib: bool, isha: bool } }
+    sleep: { target: 8, history: {} }, // { [dateStr]: { hours: number, quality: 1-5 } }
+    water: { target: 8, history: {} }, // { [dateStr]: number }
+    quran: { lastSurah: '', lastAyah: '', history: {} } // { [dateStr]: string }
   },
   progress: {
     metrics: [],

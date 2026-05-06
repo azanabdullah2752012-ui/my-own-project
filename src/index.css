@@ -550,3 +550,9 @@ input::placeholder, textarea::placeholder { color: var(--text-dim); }
 input[type="range"] {
   accent-color: var(--accent);
 }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
