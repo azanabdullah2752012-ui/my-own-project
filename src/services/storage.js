@@ -25,7 +25,9 @@ export const INITIAL_DATA = {
     prayers: {}, // { [dateStr]: { fajr: bool, dhuhr: bool, asr: bool, maghrib: bool, isha: bool } }
     sleep: { target: 8, history: {} }, // { [dateStr]: { hours: number, quality: 1-5 } }
     water: { target: 8, history: {} }, // { [dateStr]: number }
-    quran: { lastSurah: '', lastAyah: '', history: {} } // { [dateStr]: string }
+    quran: { lastSurah: '', lastAyah: '', history: {} }, // { [dateStr]: string }
+    dhikr: { history: {} }, // { [dateStr]: { tasbih: number, tahmid: number, takbir: number } }
+    sunnah: { history: {} } // { [dateStr]: { miswak: bool, charity: bool, fast: bool } }
   },
   progress: {
     metrics: [],

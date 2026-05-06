@@ -327,7 +327,7 @@ const App = () => {
     switch (view) {
       case 'dashboard': return <Dashboard  data={data} update={(val) => updateModule(null, val)} />;
       case 'goals':     return <Goals      {...props} />;
-      case 'system':    return <System     {...props} />;
+      case 'system':    return <System     {...props} fullData={data} />;
       case 'progress':  return <Progress   {...props} />;
       case 'vault':     return <Vault      {...props} />;
       case 'projects':  return <Projects   {...props} />;

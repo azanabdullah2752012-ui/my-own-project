@@ -201,6 +201,21 @@ const Dashboard = ({ data, update }) => {
             </div>
           </div>
           <div style={{ flex:1 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Protocol Score</div>
+            <div style={{ fontSize:32, fontWeight:900, color: '#4D7CFE' }}>
+               {(() => {
+                let s = 0, t = 8;
+                const today = new Date().toISOString().split('T')[0];
+                const prayersObj = data?.system?.prayers?.[today] || {};
+                s += Object.values(prayersObj).filter(Boolean).length;
+                if ((data?.system?.water?.history?.[today] || 0) >= (data?.system?.water?.target || 8)) s += 1;
+                if ((data?.system?.sleep?.history?.[today]?.hours || 0) >= 7) s += 1;
+                if ((data?.dashboard?.focusSessions || 0) >= 4) s += 1;
+                return Math.round((s/t)*100);
+              })()}%
+            </div>
+          </div>
+          <div style={{ flex:1 }}>
             <div style={{ fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Daily Note</div>
             <textarea value={db.dailyNote ?? ''} onChange={e => patchDash('dailyNote', e.target.value)}
               placeholder="Quick thought..." rows={2}
