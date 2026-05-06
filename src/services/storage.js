@@ -16,9 +16,13 @@ export const INITIAL_DATA = {
     gatekeeper: { fajr: false, water: false, bed: false, dhikr: false }
   },
   goals: {
-    shortTerm: [],
-    midTerm: [],
-    longTerm: { vision: '', milestones: [] }
+    shortTerm: [], // { id, title, deadline, done, priority: 'Low'|'Mid'|'High' }
+    midTerm: [],   // { id, title, progress, nextAction, category: 'General'|'Wealth'|'Health'|'Soul'|'Career' }
+    longTerm: { 
+      vision: '', 
+      milestones: [],
+      values: [] // string array
+    }
   },
   system: {
     morning: { wakeTime: '06:00', firstAction: '', phoneUsage: false },
