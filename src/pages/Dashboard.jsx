@@ -264,7 +264,47 @@ const Dashboard = ({ data, update }) => {
       {/* ── RIGHT COLUMN ── */}
       <div>
         <Calendar />
-        <div className="section-header" style={{ marginBottom:10 }}>
+        <div className="section-header" style={{ marginTop: 24, marginBottom:10 }}>
+          <span className="section-title">Today's Salah</span>
+        </div>
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+            {[
+              { key: 'fajr', label: 'Fajr', icon: '🌅' },
+              { key: 'dhuhr', label: 'Dhuhr', icon: '☀️' },
+              { key: 'asr', label: 'Asr', icon: '🌤️' },
+              { key: 'maghrib', label: 'Maghrib', icon: '🌇' },
+              { key: 'isha', label: 'Isha', icon: '🌙' }
+            ].map(p => {
+              const date = new Date().toISOString().split('T')[0];
+              const completed = data?.system?.prayers?.[date]?.[p.key];
+              return (
+                <div key={p.key} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, marginBottom: 4 }}>{p.icon}</div>
+                  <button 
+                    onClick={() => {
+                      const newPrayers = { ...(data.system.prayers || {}) };
+                      if (!newPrayers[date]) newPrayers[date] = {};
+                      newPrayers[date][p.key] = !newPrayers[date][p.key];
+                      update({ ...data, system: { ...data.system, prayers: newPrayers } });
+                    }}
+                    style={{ 
+                      width: '100%', height: '32px', borderRadius: 8, 
+                      background: completed ? '#34C759' : 'var(--bg-panel-hover)',
+                      border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.15s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                  >
+                    {completed && <CheckCircle2 size={14} color="#fff" />}
+                  </button>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-dim)', marginTop: 4, textTransform: 'uppercase' }}>{p.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="section-header" style={{ marginTop: 24, marginBottom:10 }}>
           <span className="section-title">Today's Schedule</span>
         </div>
         <div className="schedule-item">

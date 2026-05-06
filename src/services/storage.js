@@ -21,7 +21,8 @@ export const INITIAL_DATA = {
   system: {
     morning: { wakeTime: '06:00', firstAction: '', phoneUsage: false },
     study: { sessionLength: 25, breakDuration: 5, sessionsPerDay: 4 },
-    night: { reflection: '', tomorrowPlan: [], streakConfirmed: false }
+    night: { reflection: '', tomorrowPlan: [], streakConfirmed: false },
+    prayers: {} // { [dateStr]: { fajr: bool, dhuhr: bool, asr: bool, maghrib: bool, isha: bool } }
   },
   progress: {
     metrics: [],
