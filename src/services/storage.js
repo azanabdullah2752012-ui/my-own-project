@@ -11,7 +11,9 @@ export const INITIAL_DATA = {
     mood: 'Normal 😐',
     dailyNote: '',
     lastReset: new Date().toISOString(),
-    subjects: [] // { id, name, hours, color }
+    subjects: [],
+    ghostMode: false,
+    gatekeeper: { fajr: false, water: false, bed: false, dhikr: false }
   },
   goals: {
     shortTerm: [],

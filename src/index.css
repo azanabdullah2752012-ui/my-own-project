@@ -307,8 +307,8 @@ input::placeholder, textarea::placeholder { color: var(--text-dim); }
 /* ─── DASHBOARD GRID ─────────────────────────────────── */
 .dash-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
@@ -551,8 +551,4 @@ input[type="range"] {
   accent-color: var(--accent);
 }
 
-.dash-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 24px;
-}
+

@@ -344,13 +344,18 @@ const App = () => {
   const noMission = !data?.dashboard?.mainMission;
   const notifCount = pending + (noMission ? 1 : 0);
 
+  const ghostMode = data?.dashboard?.ghostMode ?? false;
+
   return (
     <div className="app-shell">
-      <Navigation currentView={view} setView={setView} onQuickAdd={() => setShowQuickAdd(true)} />
+      {!ghostMode && (
+        <Navigation currentView={view} setView={setView} onQuickAdd={() => setShowQuickAdd(true)} />
+      )}
 
       <div className="content-area">
         {/* TOP BAR */}
-        <header className="topbar">
+        {!ghostMode && (
+          <header className="topbar">
           <div className="topbar-search">
             <Search size={15} />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
@@ -389,11 +394,13 @@ const App = () => {
             </div>
           </div>
         </header>
+        )}
 
         {/* PAGE CONTENT */}
         <div className="page-scroll">
           <AnimatePresence mode="wait">
             <motion.div key={view} className="fade-in"
+              style={{ width: '100%' }}
               initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
               exit={{ opacity:0, y:-8 }} transition={{ duration:0.18 }}>
               {renderView()}

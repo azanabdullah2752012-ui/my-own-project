@@ -29,7 +29,9 @@ const Navigation = ({ currentView, setView, onQuickAdd }) => {
   return (
     <>
       <aside className="sidebar-strip">
-        <div className="strip-logo" title="Empire OS">E</div>
+        <div style={{ height:60, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#34C759', boxShadow:'0 0 10px rgba(52, 199, 89, 0.4)' }} />
+        </div>
         {stripItems.map(item => (
           <button key={item.id} className={`strip-app ${currentView === item.id ? 'active' : ''}`}
             title={item.title} onClick={() => setView(item.id)}>
