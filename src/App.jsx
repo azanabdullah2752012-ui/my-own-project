@@ -299,7 +299,24 @@ const ProfileMenu = ({ data, setView, onClose }) => {
 /* ── MAIN APP ── */
 const App = () => {
   const { data, updateModule } = useApp();
-  const [view, setView]           = useState('dashboard');
+  const [view, setView] = useState('dashboard');
+
+  // ── SELF-HEALING: Ensure routines exist in data ──
+  useEffect(() => {
+    if (data && (!data.schoolRoutine || data.schoolRoutine.length === 0)) {
+      import('./services/storage').then(({ INITIAL_DATA }) => {
+        updateModule(null, {
+          ...data,
+          schoolRoutine: INITIAL_DATA.schoolRoutine,
+          holidayRoutine: INITIAL_DATA.holidayRoutine,
+          settings: {
+            ...data.settings,
+            activeRoutine: data.settings?.activeRoutine || 'school'
+          }
+        });
+      });
+    }
+  }, [data]);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showHelp,   setShowHelp]   = useState(false);
   const [showSettings, setShowSettings] = useState(false);
