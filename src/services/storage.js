@@ -117,7 +117,6 @@ export const INITIAL_DATA = {
   projects: {
     list: []
   },
-  },
   journal: {
     entries: [] // { id, date: 'YYYY-MM-DD', content, mood, title }
   }
