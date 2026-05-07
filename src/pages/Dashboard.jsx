@@ -246,9 +246,11 @@ const Dashboard = ({ data, update }) => {
         )}
 
         {/* MISSION */}
-        <div className="hero-banner" style={{ opacity: (!gateCleared && !ghostMode) ? 0.4 : 1, pointerEvents: (!gateCleared && !ghostMode) ? 'none' : 'auto' }}>
+        <div className="hero-banner" style={{ border: (!gateCleared && !ghostMode) ? '1px dashed rgba(77,124,254,0.3)' : '1px solid transparent' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(77,124,254,0.8)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Today's Main Mission</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(77,124,254,0.8)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8, display:'flex', alignItems:'center', gap:6 }}>
+              Today's Main Mission {!gateCleared && !ghostMode && <ShieldCheck size={10} />}
+            </div>
             <textarea
               value={db.mainMission ?? ''}
               onChange={e => patchDash('mainMission', e.target.value)}

@@ -12,6 +12,47 @@ const Journal = ({ data, update }) => {
   const [form, setForm]               = useState({ title:'', content:'', mood: MOODS[0] });
   const [viewId, setViewId]           = useState(null);
 
+  // ── Intelligence Report Helper ──
+  const getDayStats = (date) => {
+    // 1. Study Hours
+    const studyHours = data?.dashboard?.studyHours || 0;
+    
+    // 2. Mission
+    const mission = data?.dashboard?.mainMission || 'None';
+    
+    // 3. Routine Completion
+    const activeRoutineMode = data?.settings?.activeRoutine || 'school';
+    const routine = activeRoutineMode === 'school' ? (data?.schoolRoutine || []) : (data?.holidayRoutine || []);
+    const routineDone = Object.keys(data?.system?.routineHistory?.[date] || {}).filter(k => data?.system?.routineHistory?.[date]?.[k]).length;
+    const routineScore = Math.round((routineDone / (routine.length || 1)) * 100);
+
+    // 4. Habits
+    const habits = data?.habits?.list || [];
+    const habitsDone = habits.filter(h => h.history?.[date]).length;
+    const habitsScore = Math.round((habitsDone / (habits.length || 1)) * 100);
+
+    // 5. Prayers
+    const prayers = data?.system?.prayers?.[date] || {};
+    const prayersDone = Object.values(prayers).filter(Boolean).length;
+
+    return { studyHours, mission, routineScore, habitsScore, prayersDone };
+  };
+
+  const generateReport = () => {
+    const s = getDayStats(currentDate);
+    const report = `[DAILY INTELLIGENCE REPORT - ${display(currentDate)}]
+────────────────────────────────────────
+• MISSION: ${s.mission}
+• STUDY: ${s.studyHours.toFixed(1)} Hours
+• ROUTINE: ${s.routineScore}% Completion
+• HABITS: ${s.habitsScore}% Target Hit
+• SPIRITUAL: ${s.prayersDone}/5 Prayers
+────────────────────────────────────────
+[REFLECTIONS]:
+`;
+    setForm(f => ({ ...f, content: report }));
+  };
+
   const todayEntry = entries.find(e => e.date === currentDate);
   const viewEntry  = entries.find(e => e.id === viewId);
 
@@ -91,7 +132,14 @@ const Journal = ({ data, update }) => {
             <textarea value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
               placeholder={`Write your ${display(currentDate)} entry...\n\nWhat happened? How do you feel? What did you learn? What are you grateful for?`}
               autoFocus
-              style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:12, padding:'16px', fontSize:14, color:'#fff', minHeight:320, resize:'vertical', lineHeight:1.8 }} />
+              style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:12, padding:'16px', fontSize:14, color:'#fff', minHeight:320, resize:'vertical', lineHeight:1.8, fontFamily: 'monospace' }} />
+            
+            <div style={{ display:'flex', gap:10, marginBottom:16 }}>
+              <button onClick={generateReport} className="btn-ghost" style={{ fontSize:10, fontWeight:700, border:'1px solid var(--accent)', color:'var(--accent)', padding:'4px 10px', borderRadius:6 }}>⚡ Generate Report</button>
+              <button onClick={() => setForm(f => ({ ...f, content: f.content + '\n[WIN OF THE DAY]: ' }))} className="btn-ghost" style={{ fontSize:10, fontWeight:700, border:'1px solid var(--border)', padding:'4px 10px', borderRadius:6 }}>🏆 Add Win</button>
+              <button onClick={() => setForm(f => ({ ...f, content: f.content + '\n[BOTTLENECK]: ' }))} className="btn-ghost" style={{ fontSize:10, fontWeight:700, border:'1px solid var(--border)', padding:'4px 10px', borderRadius:6 }}>🚧 Add Bottleneck</button>
+            </div>
+
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14 }}>
               <span style={{ fontSize:11, color:'var(--text-dim)' }}>{wordCount(form.content)} words</span>
               <div style={{ display:'flex', gap:10 }}>
@@ -166,35 +214,48 @@ const Journal = ({ data, update }) => {
         )}
       </div>
 
-      {/* RIGHT: PAST ENTRIES LIST */}
+      {/* RIGHT: TIMELINE VIEW */}
       <div>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-          <span style={{ fontWeight:700, fontSize:14 }}>All Entries</span>
-          <span style={{ fontSize:11, color:'var(--text-dim)' }}>{entries.length} total</span>
+          <span style={{ fontWeight:700, fontSize:14 }}>Reflection Timeline</span>
+          <span style={{ fontSize:11, color:'var(--text-dim)' }}>Last 14 days</span>
         </div>
-        {!editing && currentDate === fmt(new Date()) && !todayEntry && (
-          <button className="btn-primary" style={{ width:'100%', justifyContent:'center', marginBottom:14 }} onClick={openNew}>
-            <Plus size={14} /> Write Today
-          </button>
-        )}
-        <div style={{ display:'flex', flexDirection:'column', gap:8, maxHeight:'65vh', overflowY:'auto' }}>
-          {entries.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'20px 0' }}>No entries yet.</div>}
-          {[...entries].sort((a,b) => b.date.localeCompare(a.date)).map(e => (
-            <div key={e.id}
-              onClick={() => { setViewId(e.id); setEditing(false); }}
-              style={{ padding:'12px 14px', background: e.date === currentDate ? 'rgba(77,124,254,0.1)' : 'var(--bg-panel)', border: `1px solid ${e.date === currentDate ? 'rgba(77,124,254,0.3)' : 'var(--border)'}`, borderRadius:12, cursor:'pointer', transition:'all 0.15s' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                <span style={{ fontSize:11, fontWeight:700, color: e.date === currentDate ? '#4D7CFE' : 'var(--text-secondary)' }}>
-                  {new Date(e.date + 'T00:00:00').toLocaleDateString('en-US',{ month:'short', day:'numeric' })}
-                </span>
-                <span style={{ fontSize:11 }}>{e.mood?.split(' ')[0]}</span>
+        
+        <div style={{ display:'flex', flexDirection:'column', gap:8, maxHeight:'75vh', overflowY:'auto', paddingRight:4 }}>
+          {last14.map(date => {
+            const entry = entries.find(e => e.date === date);
+            const isToday = date === fmt(new Date());
+            const isSelected = date === currentDate;
+
+            return (
+              <div key={date}
+                onClick={() => { setCurrentDate(date); setEditing(false); setViewId(null); }}
+                style={{ 
+                  padding:'10px 14px', 
+                  background: isSelected ? 'rgba(77,124,254,0.1)' : entry ? 'rgba(52,199,89,0.03)' : 'var(--bg-panel)', 
+                  border: `1px solid ${isSelected ? 'rgba(77,124,254,0.3)' : entry ? 'rgba(52,199,89,0.2)' : 'var(--border)'}`, 
+                  borderRadius:12, 
+                  cursor:'pointer', 
+                  transition:'all 0.15s',
+                  opacity: isToday || entry ? 1 : 0.4
+                }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div style={{ fontSize:11, fontWeight:700, color: isSelected ? '#4D7CFE' : entry ? '#34C759' : 'var(--text-dim)' }}>
+                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US',{ weekday:'short', day:'numeric' })}
+                    {isToday && ' (TODAY)'}
+                  </div>
+                  {entry && <span style={{ fontSize:10 }}>{entry.mood?.split(' ')[0]}</span>}
+                </div>
+                {entry ? (
+                  <div style={{ fontSize:11, color:'var(--text-secondary)', marginTop:4, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                    {entry.title || entry.content.slice(0, 30)}
+                  </div>
+                ) : !isToday && (
+                  <div style={{ fontSize:10, color:'#FF3B30', marginTop:4, fontWeight:600 }}>MISSING ENTRY</div>
+                )}
               </div>
-              {e.title && <div style={{ fontSize:12, fontWeight:700, marginBottom:2 }}>{e.title}</div>}
-              <div style={{ fontSize:11, color:'var(--text-dim)', lineHeight:1.4 }}>
-                {e.content.slice(0, 60)}{e.content.length > 60 ? '...' : ''}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

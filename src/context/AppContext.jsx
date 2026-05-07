@@ -15,12 +15,19 @@ export const AppProvider = ({ children }) => {
       
       // If it's a different day, reset dashboard tasks
       if (lastReset.toDateString() !== now.toDateString()) {
+        const tasksDone = data.dashboard.secondaryTasks.filter(t => t.done).length + (data.dashboard.mainMission ? 1 : 0);
+        const studyHours = data.dashboard.studyHours;
+        
+        // STREAK LOGIC: Win if study > 1hr OR tasks > 2
+        const isWin = studyHours >= 1 || tasksDone >= 2;
+        const newStreak = isWin ? (data.dashboard.streak || 0) + 1 : 0;
+
         const archivedMetrics = {
           date: lastReset.toISOString(),
-          studyHours: data.dashboard.studyHours,
-          tasksCompleted: data.dashboard.secondaryTasks.filter(t => t.done).length + (data.dashboard.mainMission ? 1 : 0),
-          streak: data.dashboard.streak,
-          distractionCount: 0 // Placeholder
+          studyHours: studyHours,
+          tasksCompleted: tasksDone,
+          streak: newStreak,
+          distractionCount: 0 
         };
 
         const newData = {
@@ -31,12 +38,12 @@ export const AppProvider = ({ children }) => {
             secondaryTasks: [],
             studyHours: 0,
             focusSessions: 0,
-            dailyNote: '',
+            streak: newStreak, // Update streak for the new day
             lastReset: now.toISOString()
           },
           progress: {
             ...data.progress,
-            metrics: [...data.progress.metrics, archivedMetrics]
+            metrics: [...(data.progress.metrics || []), archivedMetrics]
           }
         };
         
