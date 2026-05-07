@@ -5,103 +5,59 @@ import {
   Compass, Zap, Briefcase, Heart, Sparkles, Activity
 } from 'lucide-react';
 
-/* ── reusable modal ── */
-const Modal = ({ title, onClose, children }) => (
-  <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center', padding:40 }}>
-    <div className="card" style={{ width:'100%', maxWidth:480, background:'var(--bg-sidebar)', border:'1px solid rgba(77,124,254,0.2)' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-        <div style={{ fontSize:16, fontWeight:800 }}>{title}</div>
-        <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer' }}><X size={20} /></button>
-      </div>
-      {children}
-    </div>
-  </div>
-);
+const Goals = ({ data, update, setView }) => {
+  const obj = data?.objectives || { sprints: [], monthly: [], ultimate: [], roadmap: [] };
 
-const Goals = ({ data: rawData, update, setView }) => {
-  // Ensure we have all properties even if data is old
-  const goals = {
-    shortTerm: [],
-    midTerm: [],
-    longTerm: { vision: '', milestones: [], values: [] },
-    ...(rawData || {})
+  const patch = (newObj) => update({ ...data, objectives: newObj });
+
+  // ── Tactical (7 Days) ──
+  const [showSprint, setShowSprint] = useState(false);
+  const [sprintForm, setSprintForm] = useState({ title:'' });
+
+  const addSprint = () => {
+    if (!sprintForm.title.trim()) return;
+    patch({ ...obj, sprints: [...(obj.sprints || []), { id: Date.now(), title: sprintForm.title, done: false }] });
+    setSprintForm({ title:'' });
+    setShowSprint(false);
   };
+  const toggleSprint = (id) => patch({ ...obj, sprints: (obj.sprints || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
+  const deleteSprint = (id) => patch({ ...obj, sprints: (obj.sprints || []).filter(g => g.id !== id) });
 
-  const patch = (newGoals) => update(newGoals);
+  // ── Strategic (Monthly) ──
+  const [showMonthly, setShowMonthly] = useState(false);
+  const [monthlyForm, setMonthlyForm] = useState({ title:'' });
 
-  // ── Short Term ──
-  const [showShort, setShowShort] = useState(false);
-  const [shortForm, setShortForm] = useState({ title:'', deadline:'', priority: 'Mid' });
-
-  const addShort = () => {
-    if (!shortForm.title.trim()) return;
-    patch({ ...goals, shortTerm: [...(goals.shortTerm || []), { id: Date.now(), ...shortForm, done: false }] });
-    setShortForm({ title:'', deadline:'', priority: 'Mid' });
-    setShowShort(false);
+  const addMonthly = () => {
+    if (!monthlyForm.title.trim()) return;
+    patch({ ...obj, monthly: [...(obj.monthly || []), { id: Date.now(), title: monthlyForm.title, done: false }] });
+    setMonthlyForm({ title:'' });
+    setShowMonthly(false);
   };
-  const toggleShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
-  const deleteShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).filter(g => g.id !== id) });
+  const toggleMonthly = (id) => patch({ ...obj, monthly: (obj.monthly || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
+  const deleteMonthly = (id) => patch({ ...obj, monthly: (obj.monthly || []).filter(g => g.id !== id) });
 
-  // ── Mid Term ──
-  const [showMid, setShowMid] = useState(false);
-  const [midForm, setMidForm] = useState({ title:'', progress:0, nextAction:'', category: 'General' });
+  // ── Ultimate Goal ──
+  const [showUltimate, setShowUltimate] = useState(false);
+  const [ultimateForm, setUltimateForm] = useState({ title:'' });
 
-  const addMid = () => {
-    if (!midForm.title.trim()) return;
-    patch({ ...goals, midTerm: [...(goals.midTerm || []), { id: Date.now(), ...midForm, progress: Number(midForm.progress) }] });
-    setMidForm({ title:'', progress:0, nextAction:'', category: 'General' });
-    setShowMid(false);
+  const addUltimate = () => {
+    if (!ultimateForm.title.trim()) return;
+    patch({ ...obj, ultimate: [...(obj.ultimate || []), { id: Date.now(), title: ultimateForm.title, done: false }] });
+    setUltimateForm({ title:'' });
+    setShowUltimate(false);
   };
-  const updateMidProgress = (id, progress) =>
-    patch({ ...goals, midTerm: (goals.midTerm || []).map(g => g.id === id ? { ...g, progress: Number(progress) } : g) });
-  const deleteMid = (id) => patch({ ...goals, midTerm: (goals.midTerm || []).filter(g => g.id !== id) });
+  const toggleUltimate = (id) => patch({ ...obj, ultimate: (obj.ultimate || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
+  const deleteUltimate = (id) => patch({ ...obj, ultimate: (obj.ultimate || []).filter(g => g.id !== id) });
 
-  // ── Long Term ──
-  const patchLong = (field, val) => patch({ ...goals, longTerm: { ...(goals.longTerm || {}), [field]: val } });
-  const [showMilestone, setShowMilestone] = useState(false);
-  const [milestoneTitle, setMilestoneTitle] = useState('');
-  const [newValue, setNewValue] = useState('');
-
-  const addValue = () => {
-    if (!newValue.trim()) return;
-    patchLong('values', [...(goals.longTerm?.values ?? []), newValue.trim()]);
-    setNewValue('');
-  };
-
-  const deleteValue = (idx) => {
-    const v = [...(goals.longTerm?.values ?? [])];
-    v.splice(idx, 1);
-    patchLong('values', v);
-  };
-
-  const addMilestone = () => {
-    if (!milestoneTitle.trim()) return;
-    patchLong('milestones', [...(goals.longTerm?.milestones ?? []), { id: Date.now(), title: milestoneTitle, done: false }]);
-    setMilestoneTitle('');
-    setShowMilestone(false);
-  };
-
-  const categories = {
-    General: { icon: <Star size={12} />, color: '#4D7CFE' },
-    Wealth: { icon: <Briefcase size={12} />, color: '#34C759' },
-    Health: { icon: <Zap size={12} />, color: '#FF3B30' },
-    Soul: { icon: <Sparkles size={12} />, color: '#FF9500' },
-    Career: { icon: <TrendingUp size={12} />, color: '#7B5BFB' }
-  };
-
-  const shortTerm = goals.shortTerm || [];
-  const midTerm = goals.midTerm || [];
-  const longTerm = goals.longTerm || { vision: '', milestones: [], values: [] };
-
-  const tacticalAccuracy = Math.round((shortTerm.filter(g => g.done).length / (shortTerm.length || 1)) * 100);
-  const strategicMomentum = Math.round(midTerm.reduce((acc, g) => acc + (g.progress || 0), 0) / (midTerm.length || 1));
+  const tacticalAccuracy = Math.round(((obj.sprints || []).filter(g => g.done).length / (obj.sprints?.length || 1)) * 100);
+  const monthlyProgress = Math.round(((obj.monthly || []).filter(g => g.done).length / (obj.monthly?.length || 1)) * 100);
 
   return (
     <div className="fade-in">
       <div className="page-header" style={{ marginBottom: 24 }}>
         <div>
-          <div className="page-title">Objectives</div>
-          <div className="page-subtitle">Strategic alignment and tactical execution.</div>
+          <div className="page-title">Roadmap & Objectives</div>
+          <div className="page-subtitle">Strategic alignment for the Empire.</div>
         </div>
         <div style={{ display:'flex', gap:20 }}>
           <div style={{ textAlign:'right' }}>
@@ -109,8 +65,8 @@ const Goals = ({ data: rawData, update, setView }) => {
             <div style={{ fontSize:24, fontWeight:900, color:'#34C759' }}>{tacticalAccuracy}%</div>
           </div>
           <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:10, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase' }}>Strategic Momentum</div>
-            <div style={{ fontSize:24, fontWeight:900, color:'#4D7CFE' }}>{strategicMomentum}%</div>
+            <div style={{ fontSize:10, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase' }}>Monthly Progress</div>
+            <div style={{ fontSize:24, fontWeight:900, color:'#4D7CFE' }}>{monthlyProgress}%</div>
           </div>
         </div>
       </div>
@@ -121,210 +77,122 @@ const Goals = ({ data: rawData, update, setView }) => {
             <Zap size={24} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize:11, fontWeight:800, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Current Monthly Focus</div>
-            <h2 style={{ fontSize:20, fontWeight:900, marginTop:4 }}>{midTerm.find(g => g.progress < 100)?.title || 'Establish New Strategic Base'}</h2>
+            <div style={{ fontSize:11, fontWeight:800, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Current Strategic Spotlight</div>
+            <h2 style={{ fontSize:20, fontWeight:900, marginTop:4 }}>{obj.monthly?.find(g => !g.done)?.title || 'Establish New Strategic Base'}</h2>
           </div>
         </div>
         <div style={{ textAlign:'right' }}>
           <div style={{ fontSize:12, fontWeight:700, color:'var(--text-secondary)' }}>Status: Active</div>
-          <button className="btn-primary" style={{ marginTop:8, padding:'6px 16px', fontSize:11 }} onClick={() => setView('projects')}>Go to Missions</button>
+          <button className="btn-primary" style={{ marginTop:8, padding:'6px 16px', fontSize:11 }} onClick={() => setView('dashboard')}>View Dashboard</button>
         </div>
       </div>
 
-      <div className="goals-grid">
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:20 }}>
+        {/* 7-DAY SPRINTS */}
         <div className="card">
-          <div className="section-header">
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
-              <Flag size={16} color="#4D7CFE" /> Tactical (7 Days)
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:15 }}>
+              <Flag size={18} color="#34C759" /> 7-Day Sprints
             </span>
-            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setShowShort(true)}>
-              <Plus size={12} /> Add
-            </button>
+            <button className="btn-ghost" onClick={() => setShowSprint(true)} style={{ color:'var(--accent)', padding:0 }}><Plus size={18} /></button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {shortTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No tactical goals.</div>}
-            {shortTerm.map(g => (
-              <div key={g.id} className="goal-item" style={{ borderLeft: `3px solid ${g.priority === 'High' ? '#FF3B30' : g.priority === 'Mid' ? '#FF9500' : '#34C759'}` }}>
-                <button onClick={() => toggleShort(g.id)} style={{ background:'none', border:'none', cursor:'pointer', flexShrink:0 }}>
-                  {g.done ? <CheckCircle2 size={16} color="#34C759" /> : <Circle size={16} color="var(--text-dim)" />}
+            {(obj.sprints || []).map(g => (
+              <div key={g.id} style={{ display:'flex', gap:12, padding:12, background:'var(--bg-panel-hover)', borderRadius:12, border:'1px solid var(--border)' }}>
+                <button onClick={() => toggleSprint(g.id)} style={{ background:'none', border:'none', cursor:'pointer' }}>
+                  {g.done ? <CheckCircle2 size={18} color="#34C759" /> : <Circle size={18} color="var(--text-dim)" />}
                 </button>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:600, textDecoration: g.done ? 'line-through' : 'none', color: g.done ? 'var(--text-dim)' : '#fff' }}>{g.title}</div>
-                  <div style={{ display:'flex', gap:8, marginTop:4 }}>
-                    {g.deadline && <span style={{ fontSize:10, color:'var(--text-dim)' }}>📅 {g.deadline}</span>}
-                    <span style={{ fontSize:10, fontWeight:700, color: g.priority === 'High' ? '#FF3B30' : 'var(--text-dim)' }}>[{String(g.priority || 'MID').toUpperCase()}]</span>
-                  </div>
-                </div>
-                <button onClick={() => deleteShort(g.id)} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={13} /></button>
+                <div style={{ flex:1, fontSize:13, fontWeight:600, color: g.done ? 'var(--text-dim)' : '#fff', textDecoration: g.done ? 'line-through' : 'none' }}>{g.title}</div>
+                <button onClick={() => deleteSprint(g.id)} style={{ background:'none', border:'none', opacity:0.3 }}><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
         </div>
 
+        {/* MONTHLY FOCUS */}
         <div className="card">
-          <div className="section-header">
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
-              <Compass size={16} color="#34C759" /> Strategic (1–12 Mo)
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:15 }}>
+              <Target size={18} color="#4D7CFE" /> Monthly Focus
             </span>
-            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setShowMid(true)}>
-              <Plus size={12} /> Add
-            </button>
+            <button className="btn-ghost" onClick={() => setShowMonthly(true)} style={{ color:'var(--accent)', padding:0 }}><Plus size={18} /></button>
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            {midTerm.length === 0 && <div style={{ fontSize:12, color:'var(--text-dim)', padding:'8px 0' }}>No strategic goals.</div>}
-            {midTerm.map(g => (
-              <div key={g.id} style={{ background:'var(--bg-panel-hover)', padding:'14px', borderRadius:12, border:'1px solid var(--border)' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-                  <div>
-                    <div style={{ fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
-                      {categories[g.category || 'General']?.icon} {g.title}
-                    </div>
-                    <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', marginTop:2, textTransform:'uppercase' }}>Category: {g.category || 'General'}</div>
-                  </div>
-                  <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    <span style={{ fontSize:11, fontWeight:800, color:categories[g.category || 'General']?.color }}>{g.progress || 0}%</span>
-                    <button onClick={() => deleteMid(g.id)} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={12} /></button>
-                  </div>
-                </div>
-                <input type="range" min={0} max={100} value={g.progress || 0}
-                  onChange={e => updateMidProgress(g.id, e.target.value)}
-                  style={{ width:'100%', accentColor: categories[g.category || 'General']?.color || '#4D7CFE' }} />
-                {g.nextAction && (
-                  <div style={{ fontSize:11, color:'var(--text-secondary)', marginTop:8, display:'flex', alignItems:'center', gap:6, padding:'6px 8px', background:'rgba(255,255,255,0.03)', borderRadius:6 }}>
-                    <ChevronRight size={12} color={categories[g.category || 'General']?.color} /> {g.nextAction}
-                  </div>
-                )}
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {(obj.monthly || []).map(g => (
+              <div key={g.id} style={{ display:'flex', gap:12, padding:12, background:'var(--bg-panel-hover)', borderRadius:12, border:'1px solid var(--border)' }}>
+                <button onClick={() => toggleMonthly(g.id)} style={{ background:'none', border:'none', cursor:'pointer' }}>
+                  {g.done ? <CheckCircle2 size={18} color="#34C759" /> : <Circle size={18} color="var(--text-dim)" />}
+                </button>
+                <div style={{ flex:1, fontSize:13, fontWeight:600, color: g.done ? 'var(--text-dim)' : '#fff', textDecoration: g.done ? 'line-through' : 'none' }}>{g.title}</div>
+                <button onClick={() => deleteMonthly(g.id)} style={{ background:'none', border:'none', opacity:0.3 }}><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
         </div>
 
+        {/* ULTIMATE GOAL */}
         <div className="card">
-          <div className="section-header">
-            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
-              <Trophy size={16} color="#FF9500" /> Ultimate Vision
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:15 }}>
+              <Trophy size={18} color="#FF9500" /> Ultimate Goal
             </span>
+            <button className="btn-ghost" onClick={() => setShowUltimate(true)} style={{ color:'var(--accent)', padding:0 }}><Plus size={18} /></button>
           </div>
-          <div style={{ marginBottom:20 }}>
-            <label style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', display:'block', marginBottom:8 }}>Core Values</label>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:10 }}>
-              {(longTerm?.values || []).map((v, i) => (
-                <span key={i} style={{ fontSize:11, fontWeight:600, padding:'4px 10px', background:'rgba(77,124,254,0.1)', color:'#4D7CFE', borderRadius:20, display:'flex', alignItems:'center', gap:6 }}>
-                  {v} <X size={10} style={{ cursor:'pointer' }} onClick={() => deleteValue(i)} />
-                </span>
-              ))}
-            </div>
-            <div style={{ display:'flex', gap:6 }}>
-              <input value={newValue} onChange={e => setNewValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && addValue()}
-                placeholder="Add value (e.g. Discipline)" style={{ flex:1, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:8, padding:'6px 10px', fontSize:11, color:'#fff' }} />
-              <button onClick={addValue} style={{ background:'var(--accent)', border:'none', color:'#fff', padding:'0 8px', borderRadius:8 }}><Plus size={14} /></button>
-            </div>
-          </div>
-          <textarea
-            value={longTerm?.vision ?? ''}
-            onChange={e => patchLong('vision', e.target.value)}
-            placeholder="Describe your ultimate life mission..."
-            style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px', fontSize:13, color:'rgba(255,255,255,0.8)', marginBottom:16, resize:'none', minHeight:100, lineHeight:1.5 }}
-          />
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-            <label style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase' }}>Major Milestones</label>
-            <button onClick={() => setShowMilestone(true)} style={{ background:'none', border:'none', color:'var(--accent)', fontSize:11, fontWeight:700, cursor:'pointer' }}>+ Add</button>
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {(longTerm?.milestones || []).map(m => (
-              <div key={m.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:'var(--bg-panel-hover)', borderRadius:10 }}>
-                <span style={{ flex:1, fontSize:12, fontWeight:600 }}>{m.title}</span>
-                <button onClick={() => patchLong('milestones', longTerm.milestones.filter(x => x.id !== m.id))} style={{ background:'none', border:'none', color:'var(--text-dim)', cursor:'pointer' }}><Trash2 size={13} /></button>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {(obj.ultimate || []).map(g => (
+              <div key={g.id} style={{ display:'flex', gap:12, padding:12, background:'rgba(255,149,0,0.05)', borderRadius:12, border:'1px solid rgba(255,149,0,0.2)' }}>
+                <button onClick={() => toggleUltimate(g.id)} style={{ background:'none', border:'none', cursor:'pointer' }}>
+                  {g.done ? <CheckCircle2 size={18} color="#FF9500" /> : <Circle size={18} color="rgba(255,149,0,0.3)" />}
+                </button>
+                <div style={{ flex:1, fontSize:13, fontWeight:800, color: g.done ? 'var(--text-dim)' : '#FF9500' }}>{g.title}</div>
+                <button onClick={() => deleteUltimate(g.id)} style={{ background:'none', border:'none', opacity:0.3 }}><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: 24 }}>
-        <div className="section-header">
-          <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
-            <Activity size={16} color="var(--accent)" /> System Roadmap
-          </span>
-        </div>
-        <div style={{ display:'flex', alignItems:'center', gap:20, padding:'10px 0' }}>
-          <div style={{ flex:1, textAlign:'center', padding:16, background:'var(--bg-panel-hover)', borderRadius:12 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', marginBottom:4 }}>TACTICAL</div>
-            <div style={{ fontSize:14, fontWeight:800 }}>Weekly Execution</div>
-          </div>
-          <ChevronRight size={20} color="var(--text-dim)" />
-          <div style={{ flex:1, textAlign:'center', padding:16, background:'rgba(77,124,254,0.1)', borderRadius:12, border:'1px solid rgba(77,124,254,0.2)' }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--accent)', marginBottom:4 }}>STRATEGIC</div>
-            <div style={{ fontSize:14, fontWeight:800 }}>Quarterly Outcomes</div>
-          </div>
-          <ChevronRight size={20} color="var(--text-dim)" />
-          <div style={{ flex:1, textAlign:'center', padding:16, background:'var(--bg-panel-hover)', borderRadius:12 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'var(--text-dim)', marginBottom:4 }}>VISION</div>
-            <div style={{ fontSize:14, fontWeight:800 }}>Ultimate Legacy</div>
+      {/* MODALS */}
+      {showSprint && (
+        <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div className="card" style={{ width:400 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
+              <div style={{ fontWeight:900 }}>New 7-Day Sprint</div>
+              <button onClick={() => setShowSprint(false)} style={{ background:'none', border:'none', color:'#fff' }}><X size={20} /></button>
+            </div>
+            <input value={sprintForm.title} onChange={e => setSprintForm({ title: e.target.value })} autoFocus
+              placeholder="e.g. Master Differentiation" style={{ width:'100%', padding:12, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, color:'#fff', marginBottom:20 }} />
+            <button className="btn-primary" style={{ width:'100%', justifyContent:'center' }} onClick={addSprint}>Start Sprint</button>
           </div>
         </div>
-      </div>
-
-      {showShort && (
-        <Modal title="Tactical Goal" onClose={() => setShowShort(false)}>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            <input value={shortForm.title} onChange={e => setShortForm(f => ({ ...f, title: e.target.value }))}
-              placeholder="What needs to be done?" style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#fff' }} />
-            <div style={{ display:'flex', gap:12 }}>
-              <div style={{ flex:1 }}>
-                <label style={{ fontSize:11, color:'var(--text-dim)', fontWeight:700 }}>Deadline</label>
-                <input type="date" value={shortForm.deadline} onChange={e => setShortForm(f => ({ ...f, deadline: e.target.value }))}
-                  style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'10px', fontSize:12, color:'#fff', marginTop:4 }} />
-              </div>
-              <div style={{ flex:1 }}>
-                <label style={{ fontSize:11, color:'var(--text-dim)', fontWeight:700 }}>Priority</label>
-                <select value={shortForm.priority} onChange={e => setShortForm(f => ({ ...f, priority: e.target.value }))}
-                  style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'10px', fontSize:12, color:'#fff', marginTop:4 }}>
-                  <option value="Low">Low</option>
-                  <option value="Mid">Mid</option>
-                  <option value="High">High</option>
-                </select>
-              </div>
-            </div>
-            <button className="btn-primary" style={{ justifyContent:'center', marginTop:10 }} onClick={addShort}>Save Goal</button>
-          </div>
-        </Modal>
       )}
 
-      {showMid && (
-        <Modal title="Strategic Objective" onClose={() => setShowMid(false)}>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            <input value={midForm.title} onChange={e => setMidForm(f => ({ ...f, title: e.target.value }))}
-              placeholder="Objective name" style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#fff' }} />
-            <input value={midForm.nextAction} onChange={e => setMidForm(f => ({ ...f, nextAction: e.target.value }))}
-              placeholder="Next immediate step..." style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#fff' }} />
-            <div style={{ display:'flex', gap:12 }}>
-              <div style={{ flex:1 }}>
-                <label style={{ fontSize:11, color:'var(--text-dim)', fontWeight:700 }}>Category</label>
-                <select value={midForm.category} onChange={e => setMidForm(f => ({ ...f, category: e.target.value }))}
-                  style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'10px', fontSize:12, color:'#fff', marginTop:4 }}>
-                  {Object.keys(categories).map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div style={{ flex:1 }}>
-                <label style={{ fontSize:11, color:'var(--text-dim)', fontWeight:700 }}>Initial Progress (%)</label>
-                <input type="number" value={midForm.progress} onChange={e => setMidForm(f => ({ ...f, progress: e.target.value }))}
-                  style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'10px', fontSize:12, color:'#fff', marginTop:4 }} />
-              </div>
+      {showMonthly && (
+        <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div className="card" style={{ width:400 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
+              <div style={{ fontWeight:900 }}>New Monthly Focus</div>
+              <button onClick={() => setShowMonthly(false)} style={{ background:'none', border:'none', color:'#fff' }}><X size={20} /></button>
             </div>
-            <button className="btn-primary" style={{ justifyContent:'center', marginTop:10 }} onClick={addMid}>Save Objective</button>
+            <input value={monthlyForm.title} onChange={e => setMonthlyForm({ title: e.target.value })} autoFocus
+              placeholder="e.g. Build Empire OS v1" style={{ width:'100%', padding:12, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, color:'#fff', marginBottom:20 }} />
+            <button className="btn-primary" style={{ width:'100%', justifyContent:'center' }} onClick={addMonthly}>Commit Focus</button>
           </div>
-        </Modal>
+        </div>
       )}
 
-      {showMilestone && (
-        <Modal title="Vision Milestone" onClose={() => setShowMilestone(false)}>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            <input value={milestoneTitle} onChange={e => setMilestoneTitle(e.target.value)}
-              placeholder="What's a major marker of success?" style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#fff' }} />
-            <button className="btn-primary" style={{ justifyContent:'center' }} onClick={addMilestone}>Add Milestone</button>
+      {showUltimate && (
+        <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div className="card" style={{ width:400 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
+              <div style={{ fontWeight:900 }}>Set Ultimate Goal</div>
+              <button onClick={() => setShowUltimate(false)} style={{ background:'none', border:'none', color:'#fff' }}><X size={20} /></button>
+            </div>
+            <input value={ultimateForm.title} onChange={e => setUltimateForm({ title: e.target.value })} autoFocus
+              placeholder="e.g. High Performance Self" style={{ width:'100%', padding:12, background:'rgba(255,149,0,0.1)', border:'1px solid rgba(255,149,0,0.3)', borderRadius:10, color:'#FF9500', marginBottom:20 }} />
+            <button className="btn-primary" style={{ width:'100%', justifyContent:'center', background:'#FF9500' }} onClick={addUltimate}>Confirm Vision</button>
           </div>
-        </Modal>
+        </div>
       )}
     </div>
   );
