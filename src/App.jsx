@@ -303,15 +303,32 @@ const App = () => {
 
   // ── SELF-HEALING: Ensure elite data exists in data ──
   useEffect(() => {
-    if (data && (!data.habits?.list || data.habits.list.length === 0)) {
+    if (!data) return;
+
+    // Check if we already initialized the elite package
+    const hasEliteHabits = data.habits?.list?.some(h => h.id === 'deep_work');
+    const hasEliteVault = data.vault?.notes?.some(n => n.id === 'rule1');
+
+    if (!hasEliteHabits || !hasEliteVault) {
+      console.log('Self-healing: Injecting Elite Initialization Package...');
       import('./services/storage').then(({ INITIAL_DATA }) => {
         updateModule(null, {
           ...data,
-          habits: INITIAL_DATA.habits,
-          objectives: INITIAL_DATA.objectives,
-          vault: INITIAL_DATA.vault,
-          schoolRoutine: INITIAL_DATA.schoolRoutine,
-          holidayRoutine: INITIAL_DATA.holidayRoutine,
+          // Merge lists carefully
+          habits: { 
+            list: [...(data.habits?.list || []), ...INITIAL_DATA.habits.list.filter(h => !data.habits?.list?.find(eh => eh.id === h.id))] 
+          },
+          objectives: {
+            ...data.objectives,
+            sprints: [...(data.objectives?.sprints || []), ...INITIAL_DATA.objectives.sprints.filter(s => !data.objectives?.sprints?.find(es => es.id === s.id))],
+            monthly: [...(data.objectives?.monthly || []), ...INITIAL_DATA.objectives.monthly.filter(m => !data.objectives?.monthly?.find(em => em.id === m.id))],
+            ultimate: [...(data.objectives?.ultimate || []), ...INITIAL_DATA.objectives.ultimate.filter(u => !data.objectives?.ultimate?.find(eu => eu.id === u.id))]
+          },
+          vault: {
+            notes: [...(data.vault?.notes || []), ...INITIAL_DATA.vault.notes.filter(n => !data.vault?.notes?.find(en => en.id === n.id))]
+          },
+          schoolRoutine: data.schoolRoutine?.length ? data.schoolRoutine : INITIAL_DATA.schoolRoutine,
+          holidayRoutine: data.holidayRoutine?.length ? data.holidayRoutine : INITIAL_DATA.holidayRoutine,
           settings: {
             ...data.settings,
             activeRoutine: data.settings?.activeRoutine || 'school'
