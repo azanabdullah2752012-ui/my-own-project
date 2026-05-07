@@ -50,8 +50,6 @@ const Habits = ({ data, update }) => {
   const totalToday     = list.length;
 
   const [mode, setMode] = useState('habits'); // 'habits' or 'routine'
-
-  const todayStr = today();
   const routine = data?.routine || [];
   const routineHistory = data?.system?.routineHistory || {};
 
