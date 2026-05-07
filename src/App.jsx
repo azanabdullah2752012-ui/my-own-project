@@ -318,12 +318,9 @@ const App = () => {
           habits: { 
             list: [...(data.habits?.list || []), ...INITIAL_DATA.habits.list.filter(h => !data.habits?.list?.find(eh => eh.id === h.id))] 
           },
-          objectives: {
-            ...data.objectives,
-            sprints: [...(data.objectives?.sprints || []), ...INITIAL_DATA.objectives.sprints.filter(s => !data.objectives?.sprints?.find(es => es.id === s.id))],
-            monthly: [...(data.objectives?.monthly || []), ...INITIAL_DATA.objectives.monthly.filter(m => !data.objectives?.monthly?.find(em => em.id === m.id))],
-            ultimate: [...(data.objectives?.ultimate || []), ...INITIAL_DATA.objectives.ultimate.filter(u => !data.objectives?.ultimate?.find(eu => eu.id === u.id))]
-          },
+          shortTerm: [...(data.shortTerm || []), ...INITIAL_DATA.shortTerm.filter(s => !data.shortTerm?.find(es => es.id === s.id))],
+          midTerm: [...(data.midTerm || []), ...INITIAL_DATA.midTerm.filter(m => !data.midTerm?.find(em => em.id === m.id))],
+          longTerm: data.longTerm?.vision ? data.longTerm : INITIAL_DATA.longTerm,
           vault: {
             notes: [...(data.vault?.notes || []), ...INITIAL_DATA.vault.notes.filter(n => !data.vault?.notes?.find(en => en.id === n.id))]
           },

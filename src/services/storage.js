@@ -92,20 +92,25 @@ export const INITIAL_DATA = {
       { id: 'reset', name: 'Mental Reset', icon: '🌙', color: '#FFD700', history: {} }
     ]
   },
-  objectives: {
-    sprints: [
-      { id: 's1', title: 'Lock Study Consistency (min 2 blocks daily)', done: false },
-      { id: 's2', title: 'Refine Empire OS Usability', done: false },
-      { id: 's3', title: 'Eliminate Distraction Leakage', done: false }
+  shortTerm: [
+    { id: 's1', title: 'Complete 10 Deep Work Sessions', priority: 'High', deadline: '7 Days', done: false },
+    { id: 's2', title: 'Finish Linear Equations Revision', priority: 'High', deadline: '7 Days', done: false },
+    { id: 's3', title: 'Stabilize Empire OS v1', priority: 'Mid', deadline: '7 Days', done: false },
+    { id: 's4', title: 'French Recovery Protocol', priority: 'Mid', deadline: '7 Days', done: false }
+  ],
+  midTerm: [
+    { id: 'm1', title: 'Build Consistency Infrastructure', progress: 15, nextAction: 'Stable Sleep Routine', category: 'General', done: false },
+    { id: 'm2', title: 'Upgrade Academic Performance', progress: 10, nextAction: 'Math Practice', category: 'Career', done: false },
+    { id: 'm3', title: 'Real Coding Progress', progress: 5, nextAction: 'Learn State/Props', category: 'Career', done: false }
+  ],
+  longTerm: {
+    vision: 'Become a high-performance builder capable of excelling academically, mastering coding, and building real systems without relying on motivation.',
+    milestones: [
+      { id: 'l1', title: 'Achieve 80% Habit Consistency', done: false },
+      { id: 'l2', title: 'Complete Empire OS v1 Stable', done: false },
+      { id: 'l3', title: 'Master French B2 Foundations', done: false }
     ],
-    monthly: [
-      { id: 'm1', title: 'Academic Upgrade: Math + French', done: false },
-      { id: 'm2', title: 'Deploy Stable Empire OS v1', done: false }
-    ],
-    ultimate: [
-      { id: 'u1', title: 'Build a high-performance version of self', done: false }
-    ],
-    roadmap: []
+    values: ['Discipline', 'Intelligence', 'Builder Mindset', 'Attention Control']
   },
   vault: {
     notes: [
