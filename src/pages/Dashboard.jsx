@@ -118,7 +118,6 @@ const FocusTimer = ({ sessionLength, onSessionComplete }) => {
 const Dashboard = ({ data, update }) => {
   const db       = data?.dashboard   ?? {};
   const system   = data?.system      ?? {};
-  const routine  = data?.routine     ?? [];
   
   const [newTask, setNewTask] = useState('');
 
@@ -157,6 +156,9 @@ const Dashboard = ({ data, update }) => {
     { label: 'Tired 😔',   icon: <Frown size={14} />, color: '#FF9500' },
   ];
 
+  const activeMode = data?.settings?.activeRoutine || 'school';
+  const routine = activeMode === 'school' ? (data?.schoolRoutine || []) : (data?.holidayRoutine || []);
+  
   const getCurrentActivity = () => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -182,11 +184,19 @@ const Dashboard = ({ data, update }) => {
             <h1 style={{ fontSize:32, fontWeight:900, letterSpacing:'-0.02em' }}>
               Welcome Back, <span style={{ color:'var(--accent)' }}>{data?.settings?.name || 'Azan'}</span>
             </h1>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:8, background:'rgba(77,124,254,0.1)', padding:'6px 12px', borderRadius:20, width:'fit-content' }}>
-              <span style={{ fontSize:16 }}>{currentActivity.icon}</span>
-              <span style={{ fontSize:12, fontWeight:700, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.05em' }}>
-                Current Activity: {currentActivity.activity}
-              </span>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:12 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(77,124,254,0.1)', padding:'6px 12px', borderRadius:20 }}>
+                <span style={{ fontSize:16 }}>{currentActivity.icon}</span>
+                <span style={{ fontSize:12, fontWeight:700, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.05em' }}>
+                  Current: {currentActivity.activity}
+                </span>
+              </div>
+              <div style={{ display:'flex', background:'var(--bg-panel)', padding:4, borderRadius:20, border:'1px solid var(--border)', marginLeft:10 }}>
+                <button onClick={() => update({ ...data, settings: { ...data.settings, activeRoutine: 'school' } })} 
+                  style={{ padding:'6px 14px', borderRadius:16, border:'none', background: activeMode === 'school' ? 'var(--accent)' : 'transparent', color: activeMode === 'school' ? '#fff' : 'var(--text-dim)', fontSize:10, fontWeight:800, cursor:'pointer' }}>School</button>
+                <button onClick={() => update({ ...data, settings: { ...data.settings, activeRoutine: 'holiday' } })}
+                  style={{ padding:'6px 14px', borderRadius:16, border:'none', background: activeMode === 'holiday' ? 'var(--accent)' : 'transparent', color: activeMode === 'holiday' ? '#fff' : 'var(--text-dim)', fontSize:10, fontWeight:800, cursor:'pointer' }}>Holiday</button>
+              </div>
             </div>
           </div>
           <div style={{ textAlign:'right', display:'flex', flexDirection:'column', gap:8 }}>

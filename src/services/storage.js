@@ -1,7 +1,10 @@
 const STORAGE_KEY = 'empire_os_data_v1';
 
 export const INITIAL_DATA = {
-  settings: { name: 'Azan' },
+  settings: { 
+    name: 'Azan',
+    activeRoutine: 'school' // 'school' or 'holiday'
+  },
   dashboard: {
     mainMission: '',
     secondaryTasks: [],
@@ -36,7 +39,7 @@ export const INITIAL_DATA = {
     dhikr: { history: {} }, // { [dateStr]: { tasbih: number, tahmid: number, takbir: number } }
     sunnah: { history: {} } // { [dateStr]: { miswak: bool, charity: bool, fast: bool } }
   },
-  routine: [
+  schoolRoutine: [
     { id: 'wake', time: '06:30', end: '06:45', activity: 'Wake up & get ready', icon: '🌅' },
     { id: 'pray1', time: '06:45', end: '07:00', activity: 'Pray', icon: '🕋' },
     { id: 'bag', time: '07:00', end: '07:10', activity: 'Pack school bag', icon: '🎒' },
@@ -56,6 +59,25 @@ export const INITIAL_DATA = {
     { id: 'pray4', time: '21:25', end: '21:45', activity: 'Pray', icon: '🕋' },
     { id: 'nightready', time: '21:45', end: '22:00', activity: 'Get ready for bed', icon: '🌙' },
     { id: 'sleep', time: '22:00', end: '06:30', activity: 'Sleep 😴', icon: '🛌' }
+  ],
+  holidayRoutine: [
+    { id: 'wake_h', time: '07:00', end: '07:30', activity: 'Wake up + refresh', icon: '🌅' },
+    { id: 'pray1_h', time: '07:30', end: '08:00', activity: 'Pray', icon: '🕋' },
+    { id: 'bfast_h', time: '08:00', end: '08:30', activity: 'Breakfast', icon: '🍳' },
+    { id: 'deep_h', time: '08:30', end: '10:00', activity: 'Deep study session', icon: '🧠' },
+    { id: 'free_h', time: '10:00', end: '11:00', activity: 'Free time', icon: '🎮' },
+    { id: 'skill_h', time: '11:00', end: '12:00', activity: 'Skill building', icon: '💻' },
+    { id: 'chill_h', time: '12:00', end: '13:00', activity: 'Chill', icon: '💆' },
+    { id: 'lunch_h', time: '13:00', end: '14:00', activity: 'Lunch + rest', icon: '🍱' },
+    { id: 'light_h', time: '14:00', end: '15:00', activity: 'Light revision', icon: '📖' },
+    { id: 'fun_h', time: '15:00', end: '17:00', activity: 'Fun/gaming/friends', icon: '🔥' },
+    { id: 'pray2_h', time: '17:00', end: '17:15', activity: 'Pray', icon: '🕋' },
+    { id: 'ex_h', time: '17:15', end: '18:00', activity: 'Exercise', icon: '⚡' },
+    { id: 'creative_h', time: '18:00', end: '19:00', activity: 'Creative/project time', icon: '🎨' },
+    { id: 'dinner_h', time: '19:00', end: '20:00', activity: 'Dinner', icon: '🍽️' },
+    { id: 'relax_h', time: '20:00', end: '21:30', activity: 'Relax', icon: '🍿' },
+    { id: 'nightready_h', time: '21:30', end: '22:00', activity: 'Prepare for sleep', icon: '🌙' },
+    { id: 'sleep_h', time: '22:00', end: '07:00', activity: 'Sleep', icon: '🛌' }
   ],
   progress: {
     metrics: [],
