@@ -301,12 +301,15 @@ const App = () => {
   const { data, updateModule } = useApp();
   const [view, setView] = useState('dashboard');
 
-  // ── SELF-HEALING: Ensure routines exist in data ──
+  // ── SELF-HEALING: Ensure elite data exists in data ──
   useEffect(() => {
-    if (data && (!data.schoolRoutine || data.schoolRoutine.length === 0)) {
+    if (data && (!data.habits?.list || data.habits.list.length === 0)) {
       import('./services/storage').then(({ INITIAL_DATA }) => {
         updateModule(null, {
           ...data,
+          habits: INITIAL_DATA.habits,
+          objectives: INITIAL_DATA.objectives,
+          vault: INITIAL_DATA.vault,
           schoolRoutine: INITIAL_DATA.schoolRoutine,
           holidayRoutine: INITIAL_DATA.holidayRoutine,
           settings: {

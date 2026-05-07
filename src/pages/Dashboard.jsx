@@ -274,6 +274,14 @@ const Dashboard = ({ data, update }) => {
             <div style={{ fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', marginBottom:6 }}>Streak</div>
             <div style={{ fontSize:32, fontWeight:900, color:'#FF9500' }}>{db.streak ?? 0} 🔥</div>
           </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'var(--text-dim)', textTransform:'uppercase', marginBottom:6 }}>Distractions</div>
+            <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
+              <button onClick={() => patchDash('distractionCount', Math.max(0, (db.distractionCount ?? 0) - 1))} style={{ width:30, height:30, borderRadius:8, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', color:'#fff' }}>−</button>
+              <span style={{ fontSize:32, fontWeight:900, color:'#FF3B30' }}>{db.distractionCount ?? 0}</span>
+              <button onClick={() => patchDash('distractionCount', (db.distractionCount ?? 0) + 1)} style={{ width:30, height:30, borderRadius:8, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', color:'#fff' }}>+</button>
+            </div>
+          </div>
         </div>
 
         {/* TIMER & TASKS */}

@@ -83,14 +83,40 @@ export const INITIAL_DATA = {
     metrics: [],
     reviews: []
   },
+  habits: {
+    list: [
+      { id: 'deep_work', name: 'Deep Work Session', icon: '🧠', color: '#00FF99', history: {} },
+      { id: 'french', name: 'French Intelligence', icon: '🇫🇷', color: '#4DA3FF', history: {} },
+      { id: 'physical', name: 'Physical Discipline', icon: '⚔️', color: '#FF4444', history: {} },
+      { id: 'knowledge', name: 'Knowledge Expansion', icon: '📚', color: '#B366FF', history: {} },
+      { id: 'reset', name: 'Mental Reset', icon: '🌙', color: '#FFD700', history: {} }
+    ]
+  },
+  objectives: {
+    sprints: [
+      { id: 's1', title: 'Lock Study Consistency (min 2 blocks daily)', done: false },
+      { id: 's2', title: 'Refine Empire OS Usability', done: false },
+      { id: 's3', title: 'Eliminate Distraction Leakage', done: false }
+    ],
+    monthly: [
+      { id: 'm1', title: 'Academic Upgrade: Math + French', done: false },
+      { id: 'm2', title: 'Deploy Stable Empire OS v1', done: false }
+    ],
+    ultimate: [
+      { id: 'u1', title: 'Build a high-performance version of self', done: false }
+    ],
+    roadmap: []
+  },
   vault: {
-    notes: []
+    notes: [
+      { id: 'rule1', title: 'Rule 1: Discipline Before Emotion', category: 'Principles', content: 'Feelings change hourly. Systems remain. Action: Follow schedule even when motivation disappears.', createdAt: new Date().toISOString() },
+      { id: 'rule2', title: 'Rule 2: Attention Is a Weapon', category: 'Principles', content: 'What controls your attention controls your future. Action: Reduce distraction exposure aggressively.', createdAt: new Date().toISOString() },
+      { id: 'rule3', title: 'Rule 3: Small Actions Compound', category: 'Principles', content: 'Tiny repeated actions shape identity faster than rare bursts of intensity. Action: Prioritize consistency over perfection.', createdAt: new Date().toISOString() }
+    ]
   },
   projects: {
     list: []
   },
-  habits: {
-    list: [],   // { id, name, icon, color, history: { [dateStr]: boolean } }
   },
   journal: {
     entries: [] // { id, date: 'YYYY-MM-DD', content, mood, title }
