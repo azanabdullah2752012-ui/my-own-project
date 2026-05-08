@@ -305,12 +305,12 @@ const App = () => {
   useEffect(() => {
     if (!data) return;
 
-    // Check if we already initialized the elite package
-    const hasEliteHabits = data.habits?.list?.some(h => h.id === 'deep_work');
+    // Check if we already initialized the elite package v3
+    const hasLatestElite = data.shortTerm?.some(h => h.title === 'Complete Algebra Reinforcement');
     const hasEliteVault = data.vault?.notes?.some(n => n.id === 'rule1');
 
-    if (!hasEliteHabits || !hasEliteVault) {
-      console.log('Self-healing: Injecting Elite Initialization Package...');
+    if (!hasLatestElite || !hasEliteVault) {
+      console.log('Self-healing: Injecting Elite Initialization Package v3...');
       import('./services/storage').then(({ INITIAL_DATA }) => {
         updateModule(null, {
           ...data,
