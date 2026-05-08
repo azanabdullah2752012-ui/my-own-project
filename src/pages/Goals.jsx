@@ -232,6 +232,8 @@ const Goals = ({ data: rawData, update, setView }) => {
         </div>
       </div>
 
+      {/* MODALS */}
+      {showShort && (
         <Modal title="Add Tactical Goal" onClose={() => setShowShort(false)}>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <input value={shortForm.title} onChange={e => setShortForm({...shortForm, title: e.target.value})} placeholder="Title (e.g. Master Differentiation)" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
@@ -246,6 +248,7 @@ const Goals = ({ data: rawData, update, setView }) => {
             <button className="btn-primary" style={{ justifyContent:'center', padding:14, fontWeight:800 }} onClick={addShort}>Create Tactical Objective</button>
           </div>
         </Modal>
+      )}
 
       {showMid && (
         <Modal title="Add Strategic Objective" onClose={() => setShowMid(false)}>
