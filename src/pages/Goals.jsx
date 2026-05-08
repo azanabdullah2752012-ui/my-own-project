@@ -7,11 +7,13 @@ import {
 
 /* ── reusable modal ── */
 const Modal = ({ title, onClose, children }) => (
-  <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center', padding:40 }}>
-    <div className="card" style={{ width:'100%', maxWidth:480, background:'var(--bg-sidebar)', border:'1px solid rgba(77,124,254,0.2)' }}>
+  <div 
+    onClick={(e) => e.target === e.currentTarget && onClose()}
+    style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.85)', backdropFilter:'blur(14px)', display:'flex', alignItems:'center', justifyContent:'center', padding:40 }}>
+    <div className="card" style={{ width:'100%', maxWidth:480, background:'var(--bg-sidebar)', border:'1px solid rgba(77,124,254,0.25)', boxShadow:'0 30px 90px rgba(0,0,0,0.6)' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-        <div style={{ fontSize:16, fontWeight:800 }}>{title}</div>
-        <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer' }}><X size={20} /></button>
+        <div style={{ fontSize:16, fontWeight:900, color:'#fff' }}>{title}</div>
+        <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--text-secondary)', cursor:'pointer', padding:4 }}><X size={20} /></button>
       </div>
       {children}
     </div>
@@ -29,28 +31,27 @@ const Goals = ({ data: rawData, update, setView }) => {
 
   const patch = (newGoals) => update(newGoals);
 
-  // ── Short Term ──
-  const [showShort, setShowShort] = useState(false);
-  const [shortForm, setShortForm] = useState({ title:'', deadline:'', priority: 'Mid' });
+  // ── Modals State ──
+  const [activeModal, setActiveModal] = useState(null); // 'short', 'mid', 'milestone'
 
+  // ── Short Term ──
+  const [shortForm, setShortForm] = useState({ title:'', deadline:'', priority: 'Mid' });
   const addShort = () => {
     if (!shortForm.title.trim()) return;
     patch({ ...goals, shortTerm: [...(goals.shortTerm || []), { id: Date.now(), ...shortForm, done: false }] });
     setShortForm({ title:'', deadline:'', priority: 'Mid' });
-    setShowShort(false);
+    setActiveModal(null);
   };
   const toggleShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
   const deleteShort = (id) => patch({ ...goals, shortTerm: (goals.shortTerm || []).filter(g => g.id !== id) });
 
   // ── Mid Term ──
-  const [showMid, setShowMid] = useState(false);
   const [midForm, setMidForm] = useState({ title:'', progress:0, nextAction:'', category: 'General' });
-
   const addMid = () => {
     if (!midForm.title.trim()) return;
     patch({ ...goals, midTerm: [...(goals.midTerm || []), { id: Date.now(), ...midForm, progress: Number(midForm.progress) }] });
     setMidForm({ title:'', progress:0, nextAction:'', category: 'General' });
-    setShowMid(false);
+    setActiveModal(null);
   };
   const updateMidProgress = (id, progress) =>
     patch({ ...goals, midTerm: (goals.midTerm || []).map(g => g.id === id ? { ...g, progress: Number(progress) } : g) });
@@ -58,7 +59,6 @@ const Goals = ({ data: rawData, update, setView }) => {
 
   // ── Long Term ──
   const patchLong = (field, val) => patch({ ...goals, longTerm: { ...(goals.longTerm || {}), [field]: val } });
-  const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneTitle, setMilestoneTitle] = useState('');
   const [newValue, setNewValue] = useState('');
 
@@ -78,7 +78,7 @@ const Goals = ({ data: rawData, update, setView }) => {
     if (!milestoneTitle.trim()) return;
     patchLong('milestones', [...(goals.longTerm?.milestones ?? []), { id: Date.now(), title: milestoneTitle, done: false }]);
     setMilestoneTitle('');
-    setShowMilestone(false);
+    setActiveModal(null);
   };
 
   const categories = {
@@ -137,7 +137,7 @@ const Goals = ({ data: rawData, update, setView }) => {
             <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
               <Flag size={16} color="#4D7CFE" /> Tactical (7 Days)
             </span>
-            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setShowShort(true)}>
+            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setActiveModal('short')}>
               <Plus size={12} /> Add
             </button>
           </div>
@@ -163,7 +163,7 @@ const Goals = ({ data: rawData, update, setView }) => {
             <span style={{ display:'flex', alignItems:'center', gap:8, fontWeight:700, fontSize:14 }}>
               <Compass size={16} color="#34C759" /> Strategic (Monthly)
             </span>
-            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setShowMid(true)}>
+            <button className="btn-primary" style={{ padding:'6px 12px', fontSize:11 }} onClick={() => setActiveModal('mid')}>
               <Plus size={12} /> Add
             </button>
           </div>
@@ -212,7 +212,7 @@ const Goals = ({ data: rawData, update, setView }) => {
                      {m.title}
                    </div>
                  ))}
-                 <button onClick={() => setShowMilestone(true)} style={{ display:'flex', alignItems:'center', gap:8, fontSize:11, color:'var(--accent)', background:'none', border:'none', cursor:'pointer', marginTop:4 }}>
+                 <button onClick={() => setActiveModal('milestone')} style={{ display:'flex', alignItems:'center', gap:8, fontSize:11, color:'var(--accent)', background:'none', border:'none', cursor:'pointer', marginTop:4 }}>
                    <Plus size={12} /> Add Milestone
                  </button>
                </div>
@@ -233,8 +233,8 @@ const Goals = ({ data: rawData, update, setView }) => {
       </div>
 
       {/* MODALS */}
-      {showShort && (
-        <Modal title="Add Tactical Goal" onClose={() => setShowShort(false)}>
+      {activeModal === 'short' && (
+        <Modal title="Add Tactical Goal" onClose={() => setActiveModal(null)}>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <input value={shortForm.title} onChange={e => setShortForm({...shortForm, title: e.target.value})} placeholder="Title (e.g. Master Differentiation)" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
             <div style={{ display:'flex', gap:10 }}>
@@ -250,8 +250,8 @@ const Goals = ({ data: rawData, update, setView }) => {
         </Modal>
       )}
 
-      {showMid && (
-        <Modal title="Add Strategic Objective" onClose={() => setShowMid(false)}>
+      {activeModal === 'mid' && (
+        <Modal title="Add Strategic Objective" onClose={() => setActiveModal(null)}>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <input value={midForm.title} onChange={e => setMidForm({...midForm, title: e.target.value})} placeholder="Title" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
             <input value={midForm.nextAction} onChange={e => setMidForm({...midForm, nextAction: e.target.value})} placeholder="Next Action" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
@@ -263,8 +263,8 @@ const Goals = ({ data: rawData, update, setView }) => {
         </Modal>
       )}
 
-      {showMilestone && (
-        <Modal title="Add Vision Milestone" onClose={() => setShowMilestone(false)}>
+      {activeModal === 'milestone' && (
+        <Modal title="Add Vision Milestone" onClose={() => setActiveModal(null)}>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <input value={milestoneTitle} onChange={e => setMilestoneTitle(e.target.value)} placeholder="Milestone Title" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
             <button className="btn-primary" style={{ justifyContent:'center', padding:14 }} onClick={addMilestone}>Add Milestone</button>
