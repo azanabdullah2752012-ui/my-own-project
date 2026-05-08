@@ -12,6 +12,12 @@ const Journal = ({ data, update }) => {
   const [form, setForm]               = useState({ title:'', content:'', mood: MOODS[0] });
   const [viewId, setViewId]           = useState(null);
 
+  const last14 = [...Array(14)].map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return fmt(d);
+  });
+
   // ── Intelligence Report Helper ──
   const getDayStats = (date) => {
     // 1. Study Hours

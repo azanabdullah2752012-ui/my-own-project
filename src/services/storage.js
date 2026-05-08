@@ -93,24 +93,23 @@ export const INITIAL_DATA = {
     ]
   },
   shortTerm: [
-    { id: 's1', title: 'Complete 10 Deep Work Sessions', priority: 'High', deadline: '7 Days', done: false },
-    { id: 's2', title: 'Finish Linear Equations Revision', priority: 'High', deadline: '7 Days', done: false },
-    { id: 's3', title: 'Stabilize Empire OS v1', priority: 'Mid', deadline: '7 Days', done: false },
-    { id: 's4', title: 'French Recovery Protocol', priority: 'Mid', deadline: '7 Days', done: false }
+    { id: 's1', title: 'Complete Algebra Reinforcement', priority: 'High', deadline: '7 Days', done: false, nextAction: 'Solve 80 problems' },
+    { id: 's2', title: 'Stabilize Empire OS v1', priority: 'High', deadline: '7 Days', done: false, nextAction: 'Mobile responsiveness' },
+    { id: 's3', title: 'French Consistency Recovery', priority: 'Mid', deadline: '7 Days', done: false, nextAction: 'Memorize 50 words' }
   ],
   midTerm: [
-    { id: 'm1', title: 'Build Consistency Infrastructure', progress: 15, nextAction: 'Stable Sleep Routine', category: 'General', done: false },
-    { id: 'm2', title: 'Upgrade Academic Performance', progress: 10, nextAction: 'Math Practice', category: 'Career', done: false },
-    { id: 'm3', title: 'Real Coding Progress', progress: 5, nextAction: 'Learn State/Props', category: 'Career', done: false }
+    { id: 'm1', title: 'Academic Performance Upgrade', progress: 5, nextAction: 'Improve Math accuracy', category: 'Career', done: false },
+    { id: 'm2', title: 'Deep Work Discipline', progress: 10, nextAction: '40 focus sessions', category: 'General', done: false },
+    { id: 'm3', title: 'Real Coding Development', progress: 5, nextAction: 'React fundamentals', category: 'Career', done: false }
   ],
   longTerm: {
-    vision: 'Become a high-performance builder capable of excelling academically, mastering coding, and building real systems without relying on motivation.',
+    vision: 'Become a high-performance builder capable of excelling academically, mastering coding, and building meaningful projects without depending on motivation.',
     milestones: [
-      { id: 'l1', title: 'Achieve 80% Habit Consistency', done: false },
-      { id: 'l2', title: 'Complete Empire OS v1 Stable', done: false },
-      { id: 'l3', title: 'Master French B2 Foundations', done: false }
+      { id: 'l1', title: 'Achieve 40 Focused Sessions', done: false },
+      { id: 'l2', title: 'Build 2 Independent Features', done: false },
+      { id: 'l3', title: 'Noticeable School Confidence', done: false }
     ],
-    values: ['Discipline', 'Intelligence', 'Builder Mindset', 'Attention Control']
+    values: ['Discipline', 'Intelligence', 'Technical Mastery', 'Consistency']
   },
   vault: {
     notes: [
