@@ -232,23 +232,20 @@ const Goals = ({ data: rawData, update, setView }) => {
         </div>
       </div>
 
-      {/* MODALS */}
-      {showShort && (
         <Modal title="Add Tactical Goal" onClose={() => setShowShort(false)}>
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-            <input value={shortForm.title} onChange={e => setShortForm({...shortForm, title: e.target.value})} placeholder="Title" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
+            <input value={shortForm.title} onChange={e => setShortForm({...shortForm, title: e.target.value})} placeholder="Title (e.g. Master Differentiation)" style={{ width:'100%', background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
             <div style={{ display:'flex', gap:10 }}>
-              <input value={shortForm.deadline} onChange={e => setShortForm({...shortForm, deadline: e.target.value})} placeholder="Deadline" style={{ flex:1, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
+              <input type="date" value={shortForm.deadline} onChange={e => setShortForm({...shortForm, deadline: e.target.value})} style={{ flex:1, background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }} />
               <select value={shortForm.priority} onChange={e => setShortForm({...shortForm, priority: e.target.value})} style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:10, padding:12, color:'#fff' }}>
-                <option value="High">High</option>
-                <option value="Mid">Mid</option>
-                <option value="Low">Low</option>
+                <option value="High">🔴 High</option>
+                <option value="Mid">🟠 Mid</option>
+                <option value="Low">🟢 Low</option>
               </select>
             </div>
-            <button className="btn-primary" style={{ justifyContent:'center', padding:14 }} onClick={addShort}>Create Goal</button>
+            <button className="btn-primary" style={{ justifyContent:'center', padding:14, fontWeight:800 }} onClick={addShort}>Create Tactical Objective</button>
           </div>
         </Modal>
-      )}
 
       {showMid && (
         <Modal title="Add Strategic Objective" onClose={() => setShowMid(false)}>
