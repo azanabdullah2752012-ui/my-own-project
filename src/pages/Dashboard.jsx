@@ -150,22 +150,14 @@ const Dashboard = ({ data, update }) => {
   const gate = db.gatekeeper ?? { fajr: false, water: false, bed: false, dhikr: false };
   const gateCleared = Object.values(gate).every(Boolean);
 
-  const moodIcons = [
-    { label: 'Focused 🔥', icon: <Smile size={14} />, color: '#34C759' },
-    { label: 'Normal 😐',  icon: <Meh   size={14} />, color: '#4D7CFE' },
-    { label: 'Tired 😔',   icon: <Frown size={14} />, color: '#FF9500' },
-  ];
-
   const activeMode = data?.settings?.activeRoutine || 'school';
   const routine = activeMode === 'school' ? (data?.schoolRoutine || []) : (data?.holidayRoutine || []);
   
   const getCurrentActivity = () => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    return routine.find(item => {
-      if (item.time <= item.end) return currentTime >= item.time && currentTime < item.end;
-      return currentTime >= item.time || currentTime < item.end;
-    }) || { activity: 'Free Time', icon: '🍃' };
+    const sorted = [...routine].sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+    return sorted.find(item => currentTime >= (item.time || '00:00')) || { task: 'System Idle', icon: '⚡' };
   };
 
   const currentActivity = getCurrentActivity();
@@ -186,9 +178,9 @@ const Dashboard = ({ data, update }) => {
             </h1>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:12 }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(77,124,254,0.1)', padding:'6px 12px', borderRadius:20 }}>
-                <span style={{ fontSize:16 }}>{currentActivity.icon}</span>
+                <div style={{ width:10, height:10, borderRadius:'50%', background:'var(--accent)', boxShadow:'0 0 10px var(--accent)' }} />
                 <span style={{ fontSize:12, fontWeight:700, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.05em' }}>
-                  Current: {currentActivity.activity}
+                  Current: {currentActivity.task || currentActivity.activity}
                 </span>
               </div>
               <div style={{ display:'flex', background:'var(--bg-panel)', padding:4, borderRadius:20, border:'1px solid var(--border)', marginLeft:10 }}>
@@ -352,38 +344,37 @@ const Dashboard = ({ data, update }) => {
           <div className="section-header" style={{ marginTop: 24, marginBottom:10 }}>
             <span className="section-title">Daily Routine Tracking</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, position:'relative', paddingLeft: 20 }}>
+            <div style={{ position:'absolute', left:6, top:0, bottom:0, width:1, background:'var(--border)', zIndex:0 }} />
             {routine.map((item, idx) => {
               const date = new Date().toISOString().split('T')[0];
-              const isCurrent = item.activity === currentActivity.activity;
+              const now = new Date();
+              const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+              const sorted = [...routine].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+              const nextItem = sorted[idx + 1];
+              const isCurrent = currentTime >= (item.time || '00:00') && (!nextItem || currentTime < nextItem.time);
               const isDone = data?.system?.routineHistory?.[date]?.[item.id];
               
-              const toggleRoutine = () => {
-                const newHistory = { ...(data.system.routineHistory || {}) };
-                if (!newHistory[date]) newHistory[date] = {};
-                newHistory[date][item.id] = !newHistory[date][item.id];
-                update({ ...data, system: { ...data.system, routineHistory: newHistory } });
-              };
-
               return (
-                <div key={idx} className="schedule-item" style={{ 
-                  borderLeftColor: isCurrent ? 'var(--accent)' : isDone ? '#34C759' : 'var(--border)',
-                  background: isCurrent ? 'rgba(77,124,254,0.05)' : isDone ? 'rgba(52,199,89,0.03)' : 'transparent',
-                  opacity: isCurrent || isDone ? 1 : 0.6,
+                <div key={idx} style={{ 
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12
+                  gap: 16,
+                  marginBottom: 16,
+                  position:'relative',
+                  zIndex: 1,
+                  opacity: isDone ? 0.5 : 1
                 }}>
-                  <button onClick={toggleRoutine} style={{ background:'none', border:'none', cursor:'pointer', padding:0 }}>
-                    {isDone ? <CheckCircle2 size={18} color="#34C759" /> : <Circle size={18} color="var(--text-dim)" />}
-                  </button>
-                  <div style={{ flex:1 }}>
-                    <div className="schedule-type" style={{ color: isCurrent ? 'var(--accent)' : isDone ? '#34C759' : 'var(--text-dim)', fontSize:10 }}>
-                      {item.time} — {item.end} {isCurrent && '• ACTIVE'}
-                    </div>
-                    <div className="schedule-title" style={{ fontSize: 13, fontWeight: isCurrent ? 800 : 600, textDecoration: isDone ? 'line-through' : 'none', color: isDone ? 'var(--text-dim)' : '#fff' }}>
-                      {item.icon} {item.activity}
-                    </div>
+                  <div style={{ width:12, height:12, borderRadius:'50%', background: isCurrent ? 'var(--accent)' : isDone ? '#34C759' : 'var(--bg-panel)', border:`2px solid ${isCurrent ? 'var(--accent)' : 'var(--border)'}`, flexShrink:0, boxShadow: isCurrent ? '0 0 10px var(--accent)' : 'none' }} />
+                  <div className="card" onClick={() => {
+                      const newHistory = { ...(data.system.routineHistory || {}) };
+                      if (!newHistory[date]) newHistory[date] = {};
+                      newHistory[date][item.id] = !newHistory[date][item.id];
+                      update({ ...data, system: { ...data.system, routineHistory: newHistory } });
+                    }}
+                    style={{ flex:1, padding:'10px 14px', background: isCurrent ? 'rgba(77,124,254,0.05)' : 'var(--bg-panel)', border: isCurrent ? '1px solid var(--accent)' : '1px solid var(--border)', cursor:'pointer' }}>
+                    <div style={{ fontSize:9, fontWeight:800, color: isCurrent ? 'var(--accent)' : 'var(--text-dim)', textTransform:'uppercase' }}>{item.time} {isCurrent && '• ACTIVE'}</div>
+                    <div style={{ fontSize:12, fontWeight:700, color: isDone ? 'var(--text-dim)' : '#fff', textDecoration: isDone ? 'line-through' : 'none' }}>{item.task}</div>
                   </div>
                 </div>
               );
