@@ -309,22 +309,24 @@ const App = () => {
     const hasLatestElite = data.shortTerm?.some(h => h.title === 'Complete Algebra Reinforcement');
     const hasEliteVault = data.vault?.notes?.some(n => n.id === 'rule1');
 
-    if (!hasLatestElite || !hasEliteVault) {
-      console.log('Self-healing: Injecting Elite Initialization Package v3...');
-      import('./services/storage').then(({ INITIAL_DATA }) => {
-        updateModule(null, {
-          ...INITIAL_DATA,
-          ...data,
-          settings: { ...INITIAL_DATA.settings, ...data.settings },
-          dashboard: { ...INITIAL_DATA.dashboard, ...data.dashboard },
-          system: { ...INITIAL_DATA.system, ...data.system },
-          habits: data.habits?.list ? data.habits : INITIAL_DATA.habits,
-          vault: data.vault?.notes ? data.vault : INITIAL_DATA.vault,
-          schoolRoutine: data.schoolRoutine?.length > 1 ? data.schoolRoutine : INITIAL_DATA.schoolRoutine,
-          holidayRoutine: data.holidayRoutine?.length > 1 ? data.holidayRoutine : INITIAL_DATA.holidayRoutine
-        });
+    // Always force-update routines to the latest real schedule (version check)
+    const hasRealSchedule = data.schoolRoutine?.some(r => r.id === 'sc1' && r.task === 'Wake Up & Get Ready');
+    
+    import('./services/storage').then(({ INITIAL_DATA }) => {
+      updateModule(null, {
+        ...INITIAL_DATA,
+        ...data,
+        settings: { ...INITIAL_DATA.settings, ...data.settings },
+        dashboard: { ...INITIAL_DATA.dashboard, ...data.dashboard },
+        system: { ...INITIAL_DATA.system, ...data.system },
+        habits: data.habits?.list?.length ? data.habits : INITIAL_DATA.habits,
+        vault: data.vault?.notes?.length ? data.vault : INITIAL_DATA.vault,
+        journal: data.journal?.entries ? data.journal : INITIAL_DATA.journal,
+        // Force real schedule always
+        schoolRoutine: INITIAL_DATA.schoolRoutine,
+        holidayRoutine: INITIAL_DATA.holidayRoutine
       });
-    }
+    });
   }, []); // Run on mount
 
   const [showNotifs, setShowNotifs] = useState(false);
@@ -360,7 +362,7 @@ const App = () => {
       case 'vault':     return <Vault      {...props} />;
       case 'projects':  return <Projects   {...props} />;
       case 'habits':    return <Habits     data={data} update={(val) => updateModule(null, val)} />;
-      case 'journal':   return <Journal    {...props} />;
+      case 'journal':   return <Journal    data={data} update={(val) => updateModule(null, val)} />;
       default:          return <Dashboard  data={data} update={(val) => updateModule(null, val)} />;
     }
   };

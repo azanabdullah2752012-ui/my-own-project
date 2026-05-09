@@ -6,7 +6,8 @@ const fmt = (d) => d.toISOString().slice(0, 10);
 const display = (s) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
 const Journal = ({ data, update }) => {
-  const entries = data?.entries ?? [];
+  const entries = data?.journal?.entries ?? [];
+  const saveEntries = (newEntries) => update({ ...data, journal: { ...data.journal, entries: newEntries } });
   const [currentDate, setCurrentDate] = useState(fmt(new Date()));
   const [editing, setEditing]         = useState(false);
   const [form, setForm]               = useState({ title:'', content:'', mood: MOODS[0] });
@@ -88,15 +89,15 @@ const Journal = ({ data, update }) => {
   const save = () => {
     if (!form.content.trim()) return;
     if (todayEntry) {
-      update({ ...data, entries: entries.map(e => e.date === currentDate ? { ...e, ...form } : e) });
+      saveEntries(entries.map(e => e.date === currentDate ? { ...e, ...form } : e));
     } else {
-      update({ ...data, entries: [{ id: crypto.randomUUID(), date: currentDate, ...form }, ...entries] });
+      saveEntries([{ id: crypto.randomUUID(), date: currentDate, ...form }, ...entries]);
     }
     setEditing(false);
   };
 
   const deleteEntry = (id) => {
-    update({ ...data, entries: entries.filter(e => e.id !== id) });
+    saveEntries(entries.filter(e => e.id !== id));
     setViewId(null);
   };
 
