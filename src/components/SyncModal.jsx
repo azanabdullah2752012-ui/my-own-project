@@ -50,7 +50,7 @@ const SyncModal = ({ data, onSync, onClose }) => {
         
         <h2 style={{ fontSize:20, fontWeight:900, marginBottom:8 }}>Empire Cloud Sync</h2>
         <p style={{ fontSize:12, color:'var(--text-dim)', marginBottom:24, lineHeight:1.6 }}>
-          Enter your unique password to link your data. Use the same password on any device to access your account.
+          Choose any password. This acts as your <strong>private account key</strong>. Use the same password on any device to access your data instantly.
         </p>
 
         <div style={{ position:'relative', marginBottom:20 }}>
