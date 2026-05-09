@@ -306,7 +306,6 @@ const App = () => {
   useEffect(() => {
     if (!data) return;
 
-    // Check if we already initialized the elite package v3
     const hasLatestElite = data.shortTerm?.some(h => h.title === 'Complete Algebra Reinforcement');
     const hasEliteVault = data.vault?.notes?.some(n => n.id === 'rule1');
 
@@ -314,33 +313,20 @@ const App = () => {
       console.log('Self-healing: Injecting Elite Initialization Package v3...');
       import('./services/storage').then(({ INITIAL_DATA }) => {
         updateModule(null, {
+          ...INITIAL_DATA,
           ...data,
-          // Merge lists carefully
-          habits: { 
-            list: [...(data.habits?.list || []), ...INITIAL_DATA.habits.list.filter(h => !data.habits?.list?.find(eh => eh.id === h.id))] 
-          },
-          shortTerm: [
-            ...INITIAL_DATA.shortTerm.filter(s => !data.shortTerm?.find(es => es.title === s.title)),
-            ...(data.shortTerm || [])
-          ],
-          midTerm: [
-            ...INITIAL_DATA.midTerm.filter(m => !data.midTerm?.find(em => em.title === m.title)),
-            ...(data.midTerm || [])
-          ],
-          longTerm: data.longTerm?.vision && data.longTerm.vision !== INITIAL_DATA.longTerm.vision ? data.longTerm : INITIAL_DATA.longTerm,
-          vault: {
-            notes: [...(data.vault?.notes || []), ...INITIAL_DATA.vault.notes.filter(n => !data.vault?.notes?.find(en => en.id === n.id))]
-          },
+          settings: { ...INITIAL_DATA.settings, ...data.settings },
+          dashboard: { ...INITIAL_DATA.dashboard, ...data.dashboard },
+          system: { ...INITIAL_DATA.system, ...data.system },
+          habits: data.habits?.list ? data.habits : INITIAL_DATA.habits,
+          vault: data.vault?.notes ? data.vault : INITIAL_DATA.vault,
           schoolRoutine: data.schoolRoutine?.length > 1 ? data.schoolRoutine : INITIAL_DATA.schoolRoutine,
-          holidayRoutine: data.holidayRoutine?.length > 1 ? data.holidayRoutine : INITIAL_DATA.holidayRoutine,
-          settings: {
-            ...data.settings,
-            activeRoutine: data.settings?.activeRoutine || 'school'
-          }
+          holidayRoutine: data.holidayRoutine?.length > 1 ? data.holidayRoutine : INITIAL_DATA.holidayRoutine
         });
       });
     }
-  }, [data]);
+  }, []); // Run on mount
+
   const [showNotifs, setShowNotifs] = useState(false);
   const [showHelp,   setShowHelp]   = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -355,7 +341,6 @@ const App = () => {
   useClickOutside(notifRef,   () => setShowNotifs(false));
   useClickOutside(profileRef, () => setShowProfile(false));
 
-  // Global keyboard shortcut: Ctrl/Cmd + K = quick add
   useEffect(() => {
     const handler = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setShowQuickAdd(true); }
@@ -381,12 +366,9 @@ const App = () => {
   };
 
   const name = data?.settings?.name ?? 'Azan';
-
-  // Unread notif count
   const pending = (data?.dashboard?.secondaryTasks ?? []).filter(t => !t.done).length;
   const noMission = !data?.dashboard?.mainMission;
   const notifCount = pending + (noMission ? 1 : 0);
-
   const ghostMode = data?.dashboard?.ghostMode ?? false;
 
   return (
@@ -396,7 +378,6 @@ const App = () => {
       )}
 
       <div className="content-area">
-        {/* TOP BAR */}
         {!ghostMode && (
           <header className="topbar">
           <div className="topbar-search">
@@ -405,13 +386,11 @@ const App = () => {
               placeholder="Search for missions, notes, etc  (⌘K to quick-add)" />
           </div>
           <div className="topbar-actions">
-            {/* CLOUD SYNC */}
             <button className="topbar-icon-btn" onClick={() => setShowSync(true)} 
               style={{ color: isSynced ? '#34C759' : 'var(--text-secondary)' }}>
               <Cloud size={17} />
             </button>
 
-            {/* BELL */}
             <div ref={notifRef} style={{ position:'relative' }}>
               <button className="topbar-icon-btn" onClick={() => { setShowNotifs(s => !s); setShowProfile(false); }} style={{ position:'relative' }}>
                 <Bell size={17} />
@@ -422,17 +401,14 @@ const App = () => {
               {showNotifs && <NotificationsPanel data={data} onClose={() => setShowNotifs(false)} />}
             </div>
 
-            {/* HELP */}
             <button className="topbar-icon-btn" onClick={() => setShowHelp(true)}>
               <HelpCircle size={17} />
             </button>
 
-            {/* SETTINGS */}
             <button className="topbar-icon-btn" onClick={() => setShowSettings(true)}>
               <Settings size={17} />
             </button>
 
-            {/* AVATAR / PROFILE */}
             <div ref={profileRef} style={{ position:'relative' }}>
               <div className="topbar-avatar" onClick={() => { setShowProfile(s => !s); setShowNotifs(false); }}>
                 <div className="topbar-avatar-img">{name.charAt(0).toUpperCase()}</div>
@@ -444,7 +420,6 @@ const App = () => {
         </header>
         )}
 
-        {/* PAGE CONTENT */}
         <div className="page-scroll">
           <AnimatePresence mode="wait">
             <motion.div key={view} className="fade-in"
@@ -457,7 +432,6 @@ const App = () => {
         </div>
       </div>
 
-      {/* GLOBAL MODALS */}
       {showHelp      && <HelpModal     onClose={() => setShowHelp(false)} />}
       {showSettings  && <SettingsModal data={data} updateModule={updateModule} onClose={() => setShowSettings(false)} />}
       {showQuickAdd  && <QuickAdd      data={data} updateModule={updateModule} onClose={() => setShowQuickAdd(false)} />}
