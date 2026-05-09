@@ -10,6 +10,7 @@ import Projects from './pages/Projects';
 import Habits from './pages/Habits';
 import Journal from './pages/Journal';
 import { motion, AnimatePresence } from 'framer-motion';
+import SyncModal from './components/SyncModal';
 import {
   Search, Bell, HelpCircle, Settings, X, Plus,
   CheckCircle2, Circle, Target, BookOpen, FolderKanban,
@@ -344,7 +345,8 @@ const App = () => {
   const [showHelp,   setShowHelp]   = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [showProfile,  setShowProfile]  = useState(false);
+  const [showSync, setShowSync] = useState(false);
+  const [isSynced, setIsSynced] = useState(false);
   const [search, setSearch] = useState('');
 
   const notifRef   = useRef(null);
@@ -401,8 +403,13 @@ const App = () => {
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search for missions, notes, etc  (⌘K to quick-add)" />
           </div>
-
           <div className="topbar-actions">
+            {/* CLOUD SYNC */}
+            <button className="topbar-icon-btn" onClick={() => setShowSync(true)} 
+              style={{ color: isSynced ? '#34C759' : 'var(--text-secondary)' }}>
+              <Cloud size={17} />
+            </button>
+
             {/* BELL */}
             <div ref={notifRef} style={{ position:'relative' }}>
               <button className="topbar-icon-btn" onClick={() => { setShowNotifs(s => !s); setShowProfile(false); }} style={{ position:'relative' }}>
@@ -453,6 +460,7 @@ const App = () => {
       {showHelp      && <HelpModal     onClose={() => setShowHelp(false)} />}
       {showSettings  && <SettingsModal data={data} updateModule={updateModule} onClose={() => setShowSettings(false)} />}
       {showQuickAdd  && <QuickAdd      data={data} updateModule={updateModule} onClose={() => setShowQuickAdd(false)} />}
+      {showSync      && <SyncModal     data={data} onSync={(newData) => { updateModule(null, newData); setIsSynced(true); }} onClose={() => setShowSync(false)} />}
     </div>
   );
 };
