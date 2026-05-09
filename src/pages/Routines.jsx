@@ -3,7 +3,7 @@ import {
   Sun, Moon, Plus, Trash2, CheckCircle2, 
   Circle, Clock, Zap, Coffee, Bed, Calendar,
   ChevronRight, Layout, Sparkles, Activity, Droplets,
-  ChevronDown, AlertCircle
+  ChevronDown, AlertCircle, PlayCircle
 } from 'lucide-react';
 
 const Routines = ({ data, update }) => {
@@ -52,6 +52,12 @@ const Routines = ({ data, update }) => {
     patchSystem({ routineHistory: history });
   };
 
+  const getCurrentActivity = () => {
+    const sorted = [...activeList].sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+    return sorted.find(item => currentTime >= (item.time || '00:00')) || { task: 'System Idle', time: '00:00' };
+  };
+
+  const currentActivity = getCurrentActivity();
   const completedCount = Object.keys(system.routineHistory?.[today] || {}).filter(id => system.routineHistory[today][id]).length;
   const progress = Math.round((completedCount / (activeList.length || 1)) * 100);
 
@@ -78,6 +84,29 @@ const Routines = ({ data, update }) => {
         </div>
       </div>
 
+      {/* CURRENT OPERATION HERO */}
+      <div className="card" style={{ marginBottom:32, padding:0, overflow:'hidden', border:'1px solid var(--accent)', background:'linear-gradient(135deg, rgba(77,124,254,0.15) 0%, transparent 100%)' }}>
+        <div style={{ display:'flex' }}>
+          <div style={{ padding:'32px 40px', flex:1 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+              <div className="icon-box" style={{ background:'var(--accent)', color:'#fff' }}><PlayCircle size={20} /></div>
+              <div style={{ fontSize:11, fontWeight:900, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Current Operation</div>
+            </div>
+            <h2 style={{ fontSize:32, fontWeight:900, marginBottom:8 }}>{currentActivity.task}</h2>
+            <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'var(--text-dim)', display:'flex', alignItems:'center', gap:6 }}>
+                <Clock size={16} /> Started at {currentActivity.time}
+              </div>
+              <div style={{ padding:'4px 12px', background:'rgba(52,199,89,0.1)', color:'#34C759', borderRadius:12, fontSize:10, fontWeight:900 }}>EXECUTING</div>
+            </div>
+          </div>
+          <div style={{ width:240, background:'rgba(0,0,0,0.2)', padding:32, display:'flex', flexDirection:'column', justifyContent:'center', textAlign:'center', borderLeft:'1px solid var(--border)' }}>
+             <div style={{ fontSize:10, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase', marginBottom:8 }}>Total Execution</div>
+             <div style={{ fontSize:32, fontWeight:900, color:'var(--accent)' }}>{progress}%</div>
+          </div>
+        </div>
+      </div>
+
       <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:32 }}>
         {/* THE TIMELINE */}
         <div>
@@ -86,17 +115,11 @@ const Routines = ({ data, update }) => {
               {/* Vertical line */}
               <div style={{ position:'absolute', left:80, top:0, bottom:0, width:1, background:'var(--border)', zIndex:0 }} />
 
-              {activeList.length === 0 && (
-                <div style={{ padding:40, textAlign:'center', background:'var(--bg-sidebar)', borderRadius:20, border:'1px dashed var(--border)' }}>
-                  <div style={{ fontSize:32, marginBottom:16 }}>📅</div>
-                  <div style={{ fontWeight:800, marginBottom:8 }}>No Blocks Defined</div>
-                  <div style={{ fontSize:12, color:'var(--text-dim)' }}>Add your first time block using the form below.</div>
-                </div>
-              )}
-
               {activeList.map((item, idx) => {
                 const isDone = system.routineHistory?.[today]?.[item.id];
-                const isCurrent = currentTime >= item.time && (idx === activeList.length - 1 || currentTime < activeList[idx+1].time);
+                const sorted = [...activeList].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                const nextItem = sorted[idx + 1];
+                const isCurrent = currentTime >= (item.time || '00:00') && (!nextItem || currentTime < nextItem.time);
                 
                 return (
                   <div key={item.id} style={{ display:'flex', gap:32, marginBottom:idx === activeList.length - 1 ? 0 : 20, position:'relative', zIndex:1 }}>
@@ -160,16 +183,6 @@ const Routines = ({ data, update }) => {
 
         {/* STATS & PROTOCOLS */}
         <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
-          {/* Progress Card */}
-          <div className="card" style={{ background:'linear-gradient(135deg, #1A1A1A 0%, #000 100%)', textAlign:'center', padding:'32px 20px' }}>
-            <div style={{ fontSize:11, fontWeight:800, color:'var(--text-dim)', textTransform:'uppercase', marginBottom:8 }}>Daily Execution</div>
-            <div style={{ fontSize:48, fontWeight:900, color:'var(--accent)' }}>{progress}%</div>
-            <div style={{ height:6, background:'var(--bg-panel)', borderRadius:3, overflow:'hidden', marginTop:16, marginBottom:16 }}>
-              <div style={{ height:'100%', width:`${progress}%`, background:'var(--accent)', transition:'width 0.6s ease' }} />
-            </div>
-            <div style={{ fontSize:11, color:'var(--text-secondary)' }}>{completedCount} / {activeList.length} blocks completed</div>
-          </div>
-
           {/* AM Protocol */}
           <div className="card">
             <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>

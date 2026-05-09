@@ -12,7 +12,7 @@ import Journal from './pages/Journal';
 import { motion, AnimatePresence } from 'framer-motion';
 import SyncModal from './components/SyncModal';
 import {
-  Search, Bell, HelpCircle, Settings, X, Plus,
+  Search, Bell, HelpCircle, Settings, X, Plus, Cloud,
   CheckCircle2, Circle, Target, BookOpen, FolderKanban,
   Download, Trash2, User, ChevronRight, Keyboard, BarChart2,
   Zap, Layers, Grid
