@@ -374,7 +374,7 @@ const App = () => {
       case 'routines':  return <Routines   data={data} update={(val) => updateModule(null, val)} />;
       case 'vault':     return <Vault      {...props} />;
       case 'projects':  return <Projects   {...props} />;
-      case 'habits':    return <Habits     {...props} />;
+      case 'habits':    return <Habits     data={data} update={(val) => updateModule(null, val)} />;
       case 'journal':   return <Journal    {...props} />;
       default:          return <Dashboard  data={data} update={(val) => updateModule(null, val)} />;
     }

@@ -22,8 +22,7 @@ const getStreak = (history) => {
 };
 
 const Habits = ({ data, update }) => {
-  // data here is the entire 'systemData' from App.jsx
-  // We need to access data.habits.list
+  // data here is the entire system data
   const habitsObj = data?.habits || { list: [] };
   const list = habitsObj.list || [];
   
