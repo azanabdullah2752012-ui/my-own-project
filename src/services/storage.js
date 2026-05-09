@@ -1,4 +1,7 @@
+export const DATA_VERSION = 2; // Increment this when schedules change
+
 export const INITIAL_DATA = {
+  dataVersion: DATA_VERSION,
   settings: {
     activeRoutine: 'school',
     name: 'Azan',
