@@ -347,6 +347,7 @@ const App = () => {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showSync, setShowSync] = useState(false);
   const [isSynced, setIsSynced] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [search, setSearch] = useState('');
 
   const notifRef   = useRef(null);
