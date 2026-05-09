@@ -330,8 +330,8 @@ const App = () => {
           vault: {
             notes: [...(data.vault?.notes || []), ...INITIAL_DATA.vault.notes.filter(n => !data.vault?.notes?.find(en => en.id === n.id))]
           },
-          schoolRoutine: data.schoolRoutine?.length ? data.schoolRoutine : INITIAL_DATA.schoolRoutine,
-          holidayRoutine: data.holidayRoutine?.length ? data.holidayRoutine : INITIAL_DATA.holidayRoutine,
+          schoolRoutine: data.schoolRoutine?.length > 1 ? data.schoolRoutine : INITIAL_DATA.schoolRoutine,
+          holidayRoutine: data.holidayRoutine?.length > 1 ? data.holidayRoutine : INITIAL_DATA.holidayRoutine,
           settings: {
             ...data.settings,
             activeRoutine: data.settings?.activeRoutine || 'school'
