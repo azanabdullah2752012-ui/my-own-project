@@ -155,49 +155,55 @@ const Journal = ({ data, update }) => {
               </div>
             </div>
           </div>
-        ) : todayEntry && currentDate === fmt(new Date()) ? (
-          /* TODAY — show existing entry */
-          <div className="card" style={{ background:'var(--bg-sidebar)' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
-              <div>
-                {todayEntry.title && <div style={{ fontSize:20, fontWeight:800, marginBottom:6 }}>{todayEntry.title}</div>}
-                <span style={{ fontSize:12, color:'#4D7CFE', background:'rgba(77,124,254,0.1)', padding:'4px 10px', borderRadius:20 }}>{todayEntry.mood}</span>
+        ) : (() => {
+          // Show entry for any date (today OR past) if it exists
+          const currentEntry = entries.find(e => e.date === currentDate);
+          if (currentEntry) {
+            return (
+              <div className="card" style={{ background:'var(--bg-sidebar)' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
+                  <div>
+                    <div style={{ fontSize:12, color:'var(--text-dim)', fontWeight:700, marginBottom:6 }}>{display(currentDate)}</div>
+                    {currentEntry.title && <div style={{ fontSize:20, fontWeight:800, marginBottom:6 }}>{currentEntry.title}</div>}
+                    <span style={{ fontSize:12, color:'#4D7CFE', background:'rgba(77,124,254,0.1)', padding:'4px 10px', borderRadius:20 }}>{currentEntry.mood}</span>
+                  </div>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => openEdit(currentEntry)} style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:8, padding:'8px 12px', color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+                      <Edit2 size={13} style={{ marginRight:4 }} /> Edit
+                    </button>
+                    <button onClick={() => deleteEntry(currentEntry.id)} style={{ background:'rgba(255,59,48,0.08)', border:'1px solid rgba(255,59,48,0.2)', borderRadius:8, padding:'8px 12px', color:'#FF3B30', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+                <div style={{ fontSize:14, color:'var(--text-secondary)', lineHeight:1.9, whiteSpace:'pre-wrap' }}>{currentEntry.content}</div>
+                <div style={{ marginTop:14, fontSize:11, color:'var(--text-dim)' }}>{wordCount(currentEntry.content)} words</div>
               </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <button onClick={() => openEdit(todayEntry)} style={{ background:'var(--bg-panel-hover)', border:'1px solid var(--border)', borderRadius:8, padding:'8px 12px', color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                  <Edit2 size={13} style={{ marginRight:4 }} /> Edit
-                </button>
-                <button onClick={() => deleteEntry(todayEntry.id)} style={{ background:'rgba(255,59,48,0.08)', border:'1px solid rgba(255,59,48,0.2)', borderRadius:8, padding:'8px 12px', color:'#FF3B30', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                  <Trash2 size={13} />
-                </button>
-              </div>
+            );
+          }
+          return (
+            <div className="card" style={{ textAlign:'center', padding:'60px 40px' }}>
+              {isFuture ? (
+                <>
+                  <div style={{ fontSize:48, marginBottom:16 }}>🔮</div>
+                  <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>Future Date</div>
+                  <div style={{ fontSize:13, color:'var(--text-secondary)' }}>You can only journal today or past dates.</div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize:48, marginBottom:16 }}>✍️</div>
+                  <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>
+                    {currentDate === fmt(new Date()) ? 'No entry today yet' : 'No entry for this day'}
+                  </div>
+                  <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:24 }}>
+                    {currentDate === fmt(new Date()) ? 'Start writing your daily reflection.' : 'You can still write a retrospective entry.'}
+                  </div>
+                  <button className="btn-primary" onClick={openNew}><Plus size={14} /> Write Entry</button>
+                </>
+              )}
             </div>
-            <div style={{ fontSize:14, color:'var(--text-secondary)', lineHeight:1.9, whiteSpace:'pre-wrap' }}>{todayEntry.content}</div>
-            <div style={{ marginTop:14, fontSize:11, color:'var(--text-dim)' }}>{wordCount(todayEntry.content)} words</div>
-          </div>
-        ) : (
-          /* EMPTY STATE */
-          <div className="card" style={{ textAlign:'center', padding:'60px 40px' }}>
-            {isFuture ? (
-              <>
-                <div style={{ fontSize:48, marginBottom:16 }}>🔮</div>
-                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>Future Date</div>
-                <div style={{ fontSize:13, color:'var(--text-secondary)' }}>You can only journal today or past dates.</div>
-              </>
-            ) : entries.find(e => e.date === currentDate) ? null : (
-              <>
-                <div style={{ fontSize:48, marginBottom:16 }}>✍️</div>
-                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>
-                  {currentDate === fmt(new Date()) ? 'No entry today yet' : 'No entry for this day'}
-                </div>
-                <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:24 }}>
-                  {currentDate === fmt(new Date()) ? 'Start writing your daily reflection.' : 'You can still write a retrospective entry.'}
-                </div>
-                {!isFuture && <button className="btn-primary" onClick={openNew}><Plus size={14} /> Write Entry</button>}
-              </>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* PAST ENTRY VIEWER */}
         {viewEntry && (
