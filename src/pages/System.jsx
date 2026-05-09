@@ -7,17 +7,15 @@ import {
 
 const System = ({ data: systemData, update, fullData }) => {
   const { 
-    morning = {}, study = {}, night = {}, 
-    prayers = {}, sleep = { target: 8, history: {} }, 
-    water = { target: 8, history: {} }, 
+    prayers = {}, 
     quran = { lastSurah: '', lastAyah: '', history: {} },
     dhikr = { history: {} },
-    sunnah = { history: {} }
+    sunnah = { history: {} },
+    water = { history: {} },
+    sleep = { history: {} }
   } = systemData || {};
   
-  const [newPriority, setNewPriority] = useState('');
   const [quranInput, setQuranInput] = useState('');
-
   const today = new Date().toISOString().split('T')[0];
 
   const patchSystem = (patch) => update({ ...systemData, ...patch });
@@ -57,12 +55,13 @@ const System = ({ data: systemData, update, fullData }) => {
   };
 
   const calculateScore = () => {
-    let score = 0, total = 8;
+    let score = 0, total = 6;
     const todayPrayers = prayers[today] || {};
-    score += Object.values(todayPrayers).filter(Boolean).length; // Now todayPrayers is at least {}
-    if ((water.history?.[today] || 0) >= (water.target || 8)) score += 1;
-    if ((sleep.history?.[today]?.hours || 0) >= 7) score += 1;
-    if ((fullData?.dashboard?.focusSessions || 0) >= (study.sessionsPerDay || 4)) score += 1;
+    score += Object.values(todayPrayers).filter(Boolean).length === 5 ? 1 : 0;
+    if ((water.history?.[today] || 0) >= 8) score += 1;
+    if (quran.history?.[today]) score += 1;
+    if (dhikr.history?.[today]?.tasbih >= 33) score += 1;
+    if (Object.values(sunnah.history?.[today] || {}).filter(Boolean).length >= 2) score += 1;
     return Math.round((score / total) * 100);
   };
 
@@ -73,23 +72,17 @@ const System = ({ data: systemData, update, fullData }) => {
       <div className="page-header" style={{ marginBottom: 32 }}>
         <div>
           <h1 className="page-title">Empire Protocol</h1>
-          <p className="page-subtitle">The operating system for your life. Balance productivity, vitality, and faith.</p>
+          <p className="page-subtitle">The operating system for your faith and vitality.</p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: 4 }}>Daily Protocol Score</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: score > 80 ? '#34C759' : score > 50 ? '#FF9500' : '#4D7CFE' }}>{score}%</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: 4 }}>Protocol Score</div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: '#4D7CFE' }}>{score}%</div>
         </div>
       </div>
 
       <div className="dash-grid" style={{ gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
         
         {/* SPIRITUAL ENGINE */}
-        <div style={{ gridColumn: 'span 12' }}>
-          <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Star size={14} /> Spiritual Engine
-          </h3>
-        </div>
-
         <section className="card" style={{ gridColumn: 'span 12' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -112,26 +105,21 @@ const System = ({ data: systemData, update, fullData }) => {
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto', marginTop: 12 }}>
+          <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '8px' }}>
               <tbody>
-                {last7Days.map(date => {
-                  const isToday = date === today;
-                  const d = new Date(date + 'T00:00:00');
-                  return (
-                    <tr key={date}>
-                      <td style={{ width: 60 }}>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: isToday ? '#4D7CFE' : 'var(--text-dim)', textTransform: 'uppercase' }}>{d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+                {last7Days.map(date => (
+                  <tr key={date}>
+                    <td style={{ width: 60 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: date === today ? '#4D7CFE' : 'var(--text-dim)', textTransform: 'uppercase' }}>{new Date(date + 'T00:00:00').toLocaleDateString('en-US',{weekday:'short'})}</div>
+                    </td>
+                    {prayerNames.map(p => (
+                      <td key={p.key}>
+                        <div style={{ height: 8, borderRadius: 4, background: prayers[date]?.[p.key] ? p.color : 'var(--bg-panel-hover)', opacity: date === today ? 1 : 0.6 }} />
                       </td>
-                      {prayerNames.map(p => (
-                        <td key={p.key}>
-                          <div onClick={() => togglePrayer(date, p.key)}
-                            style={{ height: 8, borderRadius: 4, background: prayers[date]?.[p.key] ? p.color : 'var(--bg-panel-hover)', cursor: 'pointer', opacity: isToday ? 1 : 0.6 }} />
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -178,53 +166,6 @@ const System = ({ data: systemData, update, fullData }) => {
                 <span style={{ fontSize: 13, fontWeight: 600 }}>{s}</span>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* VITALITY & PROTOCOL */}
-        <div style={{ gridColumn: 'span 12', marginTop: 16 }}>
-          <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Zap size={14} /> Productivity & Health
-          </h3>
-        </div>
-
-        <section className="card" style={{ gridColumn: 'span 6' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <Sun size={16} color="#FF9500" />
-            <h4 style={{ fontSize: 14, fontWeight: 700 }}>AM Protocol</h4>
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: 10, color: 'var(--text-dim)' }}>Wake Time</label>
-              <input type="time" value={morning.wakeTime || ''} onChange={e => update({ ...systemData, morning: { ...morning, wakeTime: e.target.value } })}
-                style={{ width: '100%', background: 'var(--bg-panel-hover)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px', color: '#fff', marginTop: 4 }} />
-            </div>
-            <button onClick={() => update({ ...systemData, morning: { ...morning, phoneUsage: !morning.phoneUsage } })}
-              style={{ flex: 1, height: 50, marginTop: 18, borderRadius: 10, background: morning.phoneUsage ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 59, 48, 0.1)', border: '1px solid var(--border)', color: morning.phoneUsage ? '#34C759' : '#FF3B30', fontSize: 11, fontWeight: 800 }}>
-              PHONE BLOCK: {morning.phoneUsage ? 'ACTIVE' : 'FAIL'}
-            </button>
-          </div>
-        </section>
-
-        <section className="card" style={{ gridColumn: 'span 6' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <Activity size={18} color="#00C7BE" />
-            <h2 style={{ fontSize: 16, fontWeight: 800 }}>Vitality Engine</h2>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Water Intake</div>
-              <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                  <div key={i} onClick={() => patchHistory('water', today, i)}
-                    style={{ width: 12, height: 20, borderRadius: 4, background: (water.history?.[today] || 0) >= i ? '#00C7BE' : 'var(--bg-panel-hover)', cursor: 'pointer' }} />
-                ))}
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 24, fontWeight: 900 }}>{water.history?.[today] || 0}</div>
-              <div style={{ fontSize: 9, color: 'var(--text-dim)' }}>GLASSES</div>
-            </div>
           </div>
         </section>
 

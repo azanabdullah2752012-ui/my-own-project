@@ -4,7 +4,7 @@ import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import Goals from './pages/Goals';
 import System from './pages/System';
-import Progress from './pages/Progress';
+import Routines from './pages/Routines';
 import Vault from './pages/Vault';
 import Projects from './pages/Projects';
 import Habits from './pages/Habits';
@@ -318,9 +318,15 @@ const App = () => {
           habits: { 
             list: [...(data.habits?.list || []), ...INITIAL_DATA.habits.list.filter(h => !data.habits?.list?.find(eh => eh.id === h.id))] 
           },
-          shortTerm: [...(data.shortTerm || []), ...INITIAL_DATA.shortTerm.filter(s => !data.shortTerm?.find(es => es.id === s.id))],
-          midTerm: [...(data.midTerm || []), ...INITIAL_DATA.midTerm.filter(m => !data.midTerm?.find(em => em.id === m.id))],
-          longTerm: data.longTerm?.vision ? data.longTerm : INITIAL_DATA.longTerm,
+          shortTerm: [
+            ...INITIAL_DATA.shortTerm.filter(s => !data.shortTerm?.find(es => es.title === s.title)),
+            ...(data.shortTerm || [])
+          ],
+          midTerm: [
+            ...INITIAL_DATA.midTerm.filter(m => !data.midTerm?.find(em => em.title === m.title)),
+            ...(data.midTerm || [])
+          ],
+          longTerm: data.longTerm?.vision && data.longTerm.vision !== INITIAL_DATA.longTerm.vision ? data.longTerm : INITIAL_DATA.longTerm,
           vault: {
             notes: [...(data.vault?.notes || []), ...INITIAL_DATA.vault.notes.filter(n => !data.vault?.notes?.find(en => en.id === n.id))]
           },
@@ -362,7 +368,7 @@ const App = () => {
       case 'dashboard': return <Dashboard  data={data} update={(val) => updateModule(null, val)} />;
       case 'goals':     return <Goals      data={data} update={(val) => updateModule(null, val)} setView={setView} />;
       case 'system':    return <System     {...props} fullData={data} />;
-      case 'progress':  return <Progress   {...props} />;
+      case 'routines':  return <Routines   data={data} update={(val) => updateModule(null, val)} />;
       case 'vault':     return <Vault      {...props} />;
       case 'projects':  return <Projects   {...props} />;
       case 'habits':    return <Habits     {...props} />;

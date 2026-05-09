@@ -2,7 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard, Target, Settings, BarChart2,
   BookOpen, FolderKanban, Repeat2, BookMarked,
-  Layers, Grid, Zap, Plus
+  Layers, Grid, Zap, Plus, Layout
 } from 'lucide-react';
 
 const Navigation = ({ currentView, setView, onQuickAdd }) => {
@@ -12,7 +12,7 @@ const Navigation = ({ currentView, setView, onQuickAdd }) => {
     { id: 'system',    label: 'Protocol',    icon: <Settings        size={16} /> },
   ];
   const intelItems = [
-    { id: 'progress', label: 'Analytics',       icon: <BarChart2    size={16} /> },
+    { id: 'routines', label: 'Routines',       icon: <Layout       size={16} /> },
     { id: 'vault',    label: 'Knowledge Vault', icon: <BookOpen     size={16} /> },
     { id: 'projects', label: 'Missions',        icon: <FolderKanban size={16} /> },
     { id: 'habits',   label: 'Habits',          icon: <Repeat2      size={16} /> },
