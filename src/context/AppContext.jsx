@@ -48,7 +48,7 @@ export const AppProvider = ({ children }) => {
         };
         
         setData(newData);
-        storage.save(newData);
+        storage.set(newData);
       }
     };
 
@@ -59,7 +59,7 @@ export const AppProvider = ({ children }) => {
     // If moduleName is null, we are updating the entire state
     const newData = moduleName ? { ...data, [moduleName]: moduleData } : moduleData;
     setData(newData);
-    storage.save(newData);
+    storage.set(newData);
   };
 
   const value = {
